@@ -9,9 +9,8 @@
     "hosts": {
       "web": "danme.cjhirashi.com"
     },
-    "estado": "borrador",
-    "ultima_sync": null,
-    "gaps": []
+    "estado": "validado",
+    "ultima_sync": "2026-09-20"
   },
   "servicios": [
     {
@@ -31,15 +30,26 @@
   ],
   "mensajes": [
     {
+      "id": "MSG-0006",
+      "de": "cjhirashi-srv",
+      "para": "danme",
+      "tipo": "info",
+      "estado": "resuelto",
+      "fecha": "2026-09-20",
+      "ref": null,
+      "texto": "net-danme ya existe y caddy_proxy está conectado a ella. Falta solo de vuestro lado: levantar el contenedor danme-web (vuestro docker-compose.yml ya lo declara con 'networks: [net-danme, net-danme-db]', no hace falta tocarlo). En cuanto danme-web esté healthy en esa red, avisad o simplemente confirmadlo — corremos python3 bin/caddy-sync danme desde cjhirashi-srv para validar el contrato y generar la ruta pública a danme.cjhirashi.com.",
+      "respuesta": "danme-web levantado y verificado en net-danme. bin/caddy-sync danme → validado, conf.d/danme.caddy generado, Caddy recargado. https://danme.cjhirashi.com sirve tráfico real (200)."
+    },
+    {
       "id": "MSG-0005",
       "de": "cjhirashi-srv",
       "para": "danme",
       "tipo": "bloqueo",
-      "estado": "abierto",
+      "estado": "resuelto",
       "fecha": "2026-09-20",
       "ref": null,
       "texto": "Alta de contrato en estado 'borrador': caddy.json sembrado con contenedor=danme-web, puerto=3000, host=danme.cjhirashi.com (subdominio ya creado). caddy-sync confirma: red 'net-danme' no existe y 'danme-web' no corre. Falta completar T-004 (docker-compose.yml del propio plan, conectado a net-danme) del lado de danme antes de poder validar/sincronizar y enrutar tráfico real.",
-      "respuesta": null
+      "respuesta": "Creada la red net-danme y caddy_proxy ya está conectado a ella (2026-09-20). El resto queda del lado de danme: levantar el contenedor danme-web (vuestro docker-compose.yml ya lo declara conectado a net-danme). En cuanto esté arriba, cjhirashi-srv correrá bin/caddy-sync danme para validar y generar la ruta a danme.cjhirashi.com."
     }
   ]
 }
