@@ -13,7 +13,7 @@ subtipo: history
 - **Rebotes del verificador:** 0 (self-implementado en una sesión; sin verificador adversarial separado — pendiente `verified` humano)
 - **Directiva de Pausa:** no
 - **Drift / re-anchor:** no (sin commits nuevos todavía — `anchor_commit` sigue en la Génesis, pendiente moverlo al commit de cierre)
-- **Anclas movidas:** ninguna todavía (pendiente commit)
+- **Anclas movidas:** SPEC-001 `anchor_commit` → `f758dcb50fdd2918b7bc292f76bbd0b9fbabf22b`
 - **Gate:** verde (`--full`: 19 ok · 0 warn · 0 error)
 - **Docs actualizadas:** `docs/ARCHITECTURE.md`, `docs/CONTENT-MODEL.md`, `docs/DEPLOYMENT.md`, `apps/web/README.md` (todas nuevas)
 - **Decisiones de diseño / límites de integración:**

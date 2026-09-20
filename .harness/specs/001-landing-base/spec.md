@@ -4,7 +4,7 @@ tipo: spec
 feature: 001-landing-base
 estado: implemented
 # --- anclaje (fusionado; ver method.md §9) ---
-anchor_commit: ce8aa73f40d4703e2e232e5402c6787a36a6a303
+anchor_commit: f758dcb50fdd2918b7bc292f76bbd0b9fbabf22b
 anchor_mode: advisory
 covers:
   - apps/web/app/(public)/**

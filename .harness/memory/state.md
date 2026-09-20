@@ -21,9 +21,12 @@ actualizado: 2026-09-20
 - Génesis: **hecha** (ADR-001 perfil de arquitectura, ADR-002 especialista UX/UI).
 - Feature **001-landing-base**: SPEC-001/PLAN-001/TASKS-001 en `implemented` (37/37
   tareas, 9 RF con test y `Pass`). Gate verde (`--full`, 19 ok/0 warn/0 error).
-  `apps/web/` existe y compila, testea y builda en Docker. **Falta:** commit de
-  cierre (mover `anchor_commit`) y decidir con el usuario si pasa a `verified`.
+  `apps/web/` existe y compila, testea y builda en Docker. Commiteado y cerrado:
+  commit `f758dcb` (`anchor_commit` movido). Pendiente de `verified` (revisión
+  humana del PR/diff — no autoaprobado).
 - Feature 002 (panel admin + auth) — **no iniciada**, siguiente candidata natural.
+- `caddy.json`: el usuario ya avisó a `cjhirashi-srv` para que configure la conexión
+  (crear red `net-danme`). Pendiente de que ellos sincronicen.
 
 ## Decisiones tomadas (histórico, sigue vigente)
 
