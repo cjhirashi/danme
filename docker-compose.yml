@@ -1,0 +1,50 @@
+services:
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: danme-web
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://danme:danme@postgres:5432/danme?schema=public}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - net-danme
+      - net-danme-db
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: danme-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: danme
+      POSTGRES_PASSWORD: danme
+      POSTGRES_DB: danme
+    ports:
+      # Expuesto al host solo para desarrollo local (migraciones, seed, GUI).
+      # No conectado a net-danme: no es alcanzable desde el proxy Caddy.
+      - "5432:5432"
+    volumes:
+      - danme-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U danme -d danme"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - net-danme-db
+
+volumes:
+  danme-postgres-data:
+
+networks:
+  # Red del proxy Caddy (cjhirashi-srv) — ver caddy.json. Externa: la crea/gestiona
+  # ese sistema, este proyecto solo se conecta.
+  net-danme:
+    external: true
+  # Red interna web<->postgres, no expuesta al proxy.
+  net-danme-db:
+    driver: bridge

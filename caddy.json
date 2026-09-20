@@ -1,0 +1,45 @@
+{
+  "formato": 1,
+  "_lee": "Contrato con cjhirashi-srv (proxy Caddy + Cloudflare Tunnel). cjhirashi-srv escribe 'cjhirashi_srv' (NO editar). Tu proyecto rellena 'servicios'. 'mensajes' con bin/caddy-msg. Validar: python3 bin/caddy-sync /mnt/disco2/cjhirashi-data/proyectos/danme/caddy.json",
+  "proyecto": "danme",
+  "cjhirashi_srv": {
+    "red": "net-danme",
+    "conecta_tus_contenedores_a_esta_red": true,
+    "declarala_external_en_tu_compose": true,
+    "hosts": {
+      "web": "danme.cjhirashi.com"
+    },
+    "estado": "borrador",
+    "ultima_sync": null,
+    "gaps": []
+  },
+  "servicios": [
+    {
+      "nombre": "web",
+      "contenedor": "danme-web",
+      "puerto": 3000,
+      "protocolo": "http",
+      "sse": false,
+      "healthcheck": "/",
+      "headers_up": [],
+      "rutas": [
+        {
+          "prefijo": "/"
+        }
+      ]
+    }
+  ],
+  "mensajes": [
+    {
+      "id": "MSG-0005",
+      "de": "cjhirashi-srv",
+      "para": "danme",
+      "tipo": "bloqueo",
+      "estado": "abierto",
+      "fecha": "2026-09-20",
+      "ref": null,
+      "texto": "Alta de contrato en estado 'borrador': caddy.json sembrado con contenedor=danme-web, puerto=3000, host=danme.cjhirashi.com (subdominio ya creado). caddy-sync confirma: red 'net-danme' no existe y 'danme-web' no corre. Falta completar T-004 (docker-compose.yml del propio plan, conectado a net-danme) del lado de danme antes de poder validar/sincronizar y enrutar tráfico real.",
+      "respuesta": null
+    }
+  ]
+}

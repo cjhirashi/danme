@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// SPEC-001 §3 — RF-002, RF-006, RF-007
+model Product {
+  id                String  @id @default(cuid())
+  name              String
+  flavorSlug        String  @unique
+  description       String
+  priceCents        Int
+  presentation      String
+  imageUrl          String?
+  available         Boolean @default(true)
+  nomExcesoCalorias Boolean @default(false)
+  nomExcesoSodio    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// SPEC-001 §3 — RF-003, RF-004, RF-008. Singleton: una sola fila (id fijo "default").
+model SiteSettings {
+  id             String  @id @default("default")
+  brandName      String
+  tagline        String
+  whatsappNumber String
+  instagramUrl   String?
+  facebookUrl    String?
+  logoUrl        String?
+
+  updatedAt DateTime @updatedAt
+}
