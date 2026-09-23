@@ -28,16 +28,14 @@ actualizado: 2026-09-20
 
 - Génesis: **hecha** (ADR-001 perfil de arquitectura, ADR-002 especialista UX/UI).
 - Feature **001-landing-base**: `implemented`, commiteada (`f758dcb` + cierre
-  `d8c298a`). `danme-web` corre en Docker, conectado a `net-danme` (ya la creó
-  `cjhirashi-srv`). Pendiente de que `cjhirashi-srv` corra su `caddy-sync` para
-  la ruta pública — coordinación de su lado, no bloquea nada nuestro.
-- Feature **002-panel-admin**: SPEC-002/PLAN-002/TASKS-002 en `implemented` (61/61
-  tareas, 20 RF con test y `Pass`). Gate verde (`--full`, 20 ok/1 warn/0 error — el
-  warn es drift esperado de `covers`, se resuelve al commitear y mover
-  `anchor_commit`). **Todavía no commiteada** — pendiente de que el usuario lo
-  apruebe. Verificado manualmente end-to-end (login, lockout tras 5 intentos,
-  CRUD de producto + imagen, settings, usuarios, logout) — capturas en
-  `/tmp/admin-shots/` (no versionadas).
+  `d8c298a`). **Live en producción**: https://danme.cjhirashi.com (contrato
+  `caddy.json` validado por `cjhirashi-srv`, commit `3ddaab4`).
+- Feature **002-panel-admin**: `implemented`, commiteada (`c95fdaf` + cierre
+  `fdb6aa5`). 61/61 tareas, 20 RF con test y `Pass`. Gate verde. Panel accesible en
+  `/admin/login` (local: `http://localhost:3000/admin/login`; producción:
+  `https://danme.cjhirashi.com/admin/login`). Verificado end-to-end manualmente
+  (login, lockout tras 5 intentos, CRUD de producto + imagen, settings, usuarios,
+  logout) — capturas en `/tmp/admin-shots/` (no versionadas, solo evidencia local).
 - Cuentas admin sembradas en dev: `cjhirashi@gmail.com` y
   `danieljime444@gmail.com` (Daniel, propietario del negocio), password temporal
   compartido `admin1234` (ver `.env`, no commiteado). Ambas deben cambiarla desde
@@ -91,13 +89,25 @@ actualizado: 2026-09-20
 - `npm install-scripts approve` es necesario para paquetes con postinstall
   legítimos (prisma engines, esbuild, unrs-resolver) — npm 11+ los bloquea por
   defecto.
+- **Todas** las páginas que leen Postgres necesitan `force-dynamic` (no solo la
+  landing): las páginas admin (`app/admin/(protected)/**`) lo heredan del
+  `layout.tsx` de ese route group — evita que Next intente prerenderizarlas en
+  build time sin DB disponible.
+- **Next.js standalone + Docker multi-red:** el server usa `$HOSTNAME` para el
+  bind del socket; Docker fija `HOSTNAME` al hostname del contenedor, que en un
+  contenedor conectado a 2 redes (`net-danme` + `net-danme-db`) resuelve a una
+  sola IP — el server quedaba inalcanzable desde la otra red (Caddy: "connection
+  refused" aunque resolvía la IP correcta). Fix: `ENV HOSTNAME="0.0.0.0"`
+  explícito en el Dockerfile (`runner`).
+- `docker-compose.yml` con `${VAR:?...}` (variable obligatoria) necesita un `.env`
+  en la **raíz del repo** (no `apps/web/.env`) para la interpolación — separado del
+  gitignore de `apps/web/`, se creó `.gitignore` en la raíz.
 
 ## Próximo paso concreto
 
-1. Preguntar al usuario si hace el commit de Feature 002 (mover `anchor_commit`
-   de SPEC-002 al commit resultante) — no autoaprobado.
-2. Tras commitear: `docker compose build web && docker compose up -d web` en el
-   servidor real (no solo en este entorno de trabajo) para desplegar el panel.
-3. Avisar a Carlos y Daniel que cambien la password temporal (`admin1234`) desde
+1. **Hecho:** redesplegado en producción — panel admin verificado en vivo en
+   https://danme.cjhirashi.com/admin/login (login + ruta protegida responden 200
+   con las cuentas reales).
+2. Avisar a Carlos y Daniel que cambien la password temporal (`admin1234`) desde
    `/admin/account` en cuanto tengan acceso.
-4. Sin Feature 003 planeada todavía.
+3. Sin Feature 003 planeada todavía.

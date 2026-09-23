@@ -1,6 +1,10 @@
 import Link from "next/link";
 import LogoutButton from "@/components/admin/LogoutButton";
 
+// Todo lo que cuelga de (protected) requiere sesión (proxy.ts) y lee Postgres —
+// nunca debe pre-renderizarse en build time (mismo caso que SPEC-001 RF-001/§Renderizado).
+export const dynamic = "force-dynamic";
+
 export default function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-crema">

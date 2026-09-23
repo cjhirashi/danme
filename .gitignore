@@ -1,0 +1,3 @@
+# Variables de entorno para docker-compose (raíz) — nunca se commitean.
+.env
+.env.local

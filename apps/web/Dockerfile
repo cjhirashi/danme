@@ -32,4 +32,9 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
+# El servidor standalone de Next.js usa $HOSTNAME para el bind del socket. Docker
+# fija HOSTNAME al hostname del contenedor por defecto, que en un contenedor con
+# más de una red (net-danme + net-danme-db) resuelve a una sola IP — el server
+# quedaba inalcanzable desde la otra red. 0.0.0.0 = escuchar en todas.
+ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server.js"]

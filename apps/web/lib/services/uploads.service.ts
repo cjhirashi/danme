@@ -26,7 +26,10 @@ export async function saveUpload(file: File, subdir: string): Promise<SaveResult
 
   const filename = `${randomUUID()}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(dir, filename), buffer);
+  // subdir es siempre un literal fijo del propio código ("products"/"settings"),
+  // no input de usuario — turbopackIgnore evita que el bundler trace todo el
+  // proyecto por no poder probarlo estáticamente (ver aviso del build).
+  await fs.writeFile(path.join(/* turbopackIgnore: true */ dir, filename), buffer);
 
   return { ok: true, url: `/uploads/${subdir}/${filename}` };
 }
