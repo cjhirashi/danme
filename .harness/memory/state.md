@@ -36,10 +36,19 @@ actualizado: 2026-09-20
   `https://danme.cjhirashi.com/admin/login`). Verificado end-to-end manualmente
   (login, lockout tras 5 intentos, CRUD de producto + imagen, settings, usuarios,
   logout) — capturas en `/tmp/admin-shots/` (no versionadas, solo evidencia local).
-- Cuentas admin sembradas en dev: `cjhirashi@gmail.com` y
-  `danieljime444@gmail.com` (Daniel, propietario del negocio), password temporal
-  compartido `admin1234` (ver `.env`, no commiteado). Ambas deben cambiarla desde
-  `/admin/account` (RF-117).
+- Cuentas admin: `cjhirashi@gmail.com` (Carlos) y `danieljime444@gmail.com`
+  (Daniel). **Importante:** el Postgres de este entorno de trabajo y el de
+  producción (`danme.cjhirashi.com`) son **la misma base** — no hay separación
+  dev/prod. Carlos ya cambió su password real desde el panel (2026-09-23, entre
+  sesiones) — `admin1234` ya NO es válida para su cuenta. La de Daniel seguía con
+  el temporal la última vez que se verificó.
+- Iteración de UI del panel (feedback directo del usuario, 2026-09-23, sin pasar
+  por specify/plan — ajuste de bajo riesgo dentro del alcance ya aprobado de
+  SPEC-002): sidebar en vez de nav horizontal; `ImageUploadField` (componente
+  compartido) reemplaza el `<input type=file>` desnudo en productos/settings;
+  cambio de password ahora pide confirmación (debe coincidir, ≥8 caracteres) y
+  muestra un banner de éxito visible (antes el usuario no veía confirmación
+  ninguna). Commit `1b6edb8`, redesplegado en producción.
 
 ## Decisiones tomadas (histórico, sigue vigente)
 
