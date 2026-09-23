@@ -17,7 +17,7 @@ export default async function LandingPage() {
     <>
       <Hero settings={settings} />
       <Catalog products={products} />
-      <About />
+      <About settings={settings} />
       <Contact settings={settings} />
       <Footer settings={settings} />
     </>

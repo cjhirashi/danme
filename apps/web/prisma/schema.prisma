@@ -37,6 +37,8 @@ model AdminUser {
 }
 
 // SPEC-001 §3 — RF-003, RF-004, RF-008. Singleton: una sola fila (id fijo "default").
+// aboutText: SPEC-002 RF-112 (extensión) — contenido de la sección "Sobre <marca>",
+// editable desde /admin/settings junto con el resto de SiteSettings.
 model SiteSettings {
   id             String  @id @default("default")
   brandName      String
@@ -45,6 +47,7 @@ model SiteSettings {
   instagramUrl   String?
   facebookUrl    String?
   logoUrl        String?
+  aboutText      String  @default("Producto artesanal hecho en México, sin conservadores.")
 
   updatedAt DateTime @updatedAt
 }

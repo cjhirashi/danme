@@ -52,6 +52,21 @@ describe("app/api/admin/settings", () => {
     expect(updated.instagramUrl).toBe("https://instagram.com/danme");
   });
 
+  it("PATCH edita el contenido de 'Sobre <marca>' (RF-112, extensión)", async () => {
+    const { PATCH } = await import("@/app/api/admin/settings/route");
+    const req = new Request("http://localhost/api/admin/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ aboutText: "Nuevo contenido de la sección Sobre nosotros." }),
+    });
+
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+
+    const updated = await prisma.siteSettings.findUniqueOrThrow({ where: { id: "default" } });
+    expect(updated.aboutText).toBe("Nuevo contenido de la sección Sobre nosotros.");
+  });
+
   it("POST /logo sube el logo y actualiza logoUrl (RF-113)", async () => {
     const { POST } = await import("@/app/api/admin/settings/logo/route");
     const form = new FormData();

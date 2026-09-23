@@ -23,6 +23,8 @@ async function main() {
       instagramUrl: null,
       facebookUrl: null,
       logoUrl: null,
+      aboutText:
+        "Producto artesanal hecho en México, sin conservadores. Cada frasco de chicharrón de chile se prepara de forma casera, cuidando el sabor y el picor en cada tanda.",
     },
   });
 

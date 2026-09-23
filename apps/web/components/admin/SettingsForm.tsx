@@ -10,6 +10,7 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
   const [brandName, setBrandName] = useState(settings.brandName);
   const [tagline, setTagline] = useState(settings.tagline);
+  const [aboutText, setAboutText] = useState(settings.aboutText);
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber);
   const [instagramUrl, setInstagramUrl] = useState(settings.instagramUrl ?? "");
   const [facebookUrl, setFacebookUrl] = useState(settings.facebookUrl ?? "");
@@ -28,6 +29,7 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
       body: JSON.stringify({
         brandName,
         tagline,
+        aboutText,
         whatsappNumber,
         instagramUrl: instagramUrl || null,
         facebookUrl: facebookUrl || null,
@@ -41,7 +43,7 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
     }
 
     setSaving(false);
-    setMessage("Guardado.");
+    setMessage("Los cambios se guardaron y ya se ven en la landing.");
     router.refresh();
   }
 
@@ -54,6 +56,15 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
       <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
         Tagline
         <input className="rounded border px-3 py-2" value={tagline} onChange={(e) => setTagline(e.target.value)} />
+      </label>
+      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
+        Sobre {brandName || "el negocio"} (sección de la landing)
+        <textarea
+          rows={4}
+          className="rounded border px-3 py-2"
+          value={aboutText}
+          onChange={(e) => setAboutText(e.target.value)}
+        />
       </label>
       <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
         WhatsApp
@@ -89,7 +100,14 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
         }}
       />
 
-      {message && <p className="text-sm text-verde-danme">{message}</p>}
+      {message && (
+        <p
+          role="status"
+          className="rounded border border-verde-danme bg-verde-danme/10 px-4 py-3 text-sm font-medium text-verde-danme"
+        >
+          ✓ {message}
+        </p>
+      )}
 
       <button
         type="submit"

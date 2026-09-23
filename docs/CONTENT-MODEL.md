@@ -25,6 +25,7 @@ orientada a negocio de ese schema.
 |---|---|---|---|
 | `brandName` | string | admin (`/admin/settings`) | "DanMe" |
 | `tagline` | string | admin | — |
+| `aboutText` | string | admin | Cuerpo de la sección "Sobre `{brandName}`" de la landing |
 | `whatsappNumber` | string | admin | Usado para armar el link `wa.me` de contacto |
 | `instagramUrl` / `facebookUrl` | string? | admin | `null` → el enlace no se muestra |
 | `logoUrl` | string? | admin (subida de archivo) | `null` → placeholder |

@@ -34,6 +34,7 @@ const baseSettings: SiteSettings = {
   id: "default",
   brandName: "DanMe",
   tagline: "Producto artesanal — by Daniel",
+  aboutText: "Producto artesanal hecho en México, sin conservadores.",
   whatsappNumber: "+527226499807",
   instagramUrl: null,
   facebookUrl: null,
