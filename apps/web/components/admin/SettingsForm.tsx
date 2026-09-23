@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteSettings } from "@prisma/client";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 
 // RF-112, RF-113
 export default function SettingsForm({ settings }: { settings: SiteSettings }) {
@@ -78,27 +79,15 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
           onChange={(e) => setFacebookUrl(e.target.value)}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Logo (JPG/PNG/WebP, máx 5MB)
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
-        />
-      </label>
-
-      {settings.logoUrl && (
-        <button
-          type="button"
-          className="self-start text-sm text-red-600 underline"
-          onClick={async () => {
-            await fetch("/api/admin/settings/logo", { method: "DELETE" });
-            router.refresh();
-          }}
-        >
-          Quitar logo actual
-        </button>
-      )}
+      <ImageUploadField
+        label="Logo"
+        currentUrl={settings.logoUrl}
+        onFileSelected={setLogoFile}
+        onRemoveCurrent={async () => {
+          await fetch("/api/admin/settings/logo", { method: "DELETE" });
+          router.refresh();
+        }}
+      />
 
       {message && <p className="text-sm text-verde-danme">{message}</p>}
 

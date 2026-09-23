@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@prisma/client";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 
 // RF-106, RF-107, RF-109, RF-110
 export default function ProductForm({ product }: { product?: Product }) {
@@ -121,27 +122,19 @@ export default function ProductForm({ product }: { product?: Product }) {
         Exceso sodio
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Imagen (JPG/PNG/WebP, máx 5MB)
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-        />
-      </label>
-
-      {isEdit && product?.imageUrl && (
-        <button
-          type="button"
-          className="self-start text-sm text-red-600 underline"
-          onClick={async () => {
-            await fetch(`/api/admin/products/${product.id}/image`, { method: "DELETE" });
-            router.refresh();
-          }}
-        >
-          Quitar imagen actual
-        </button>
-      )}
+      <ImageUploadField
+        label="Imagen del producto"
+        currentUrl={product?.imageUrl ?? null}
+        onFileSelected={setImageFile}
+        onRemoveCurrent={
+          isEdit
+            ? async () => {
+                await fetch(`/api/admin/products/${product!.id}/image`, { method: "DELETE" });
+                router.refresh();
+              }
+            : undefined
+        }
+      />
 
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
