@@ -74,9 +74,13 @@ rutas:
 
 - Secretos (cadena de conexión, secreto de sesión) fuera del repo, vía `.env`
   (`.env.example` sí se commitea).
-- **Un único usuario administrador.** Login con email+password (hash con bcrypt/argon2)
-  y sesión vía cookie firmada httpOnly. Sin roles ni registro público en esta fase —
-  añadir multiusuario exige spec + `ADR-` nuevo (cambia el modelo de auth).
+- **N administradores, todos con el mismo rol** (ADR-003, enmienda a la decisión
+  original de ADR-001 de un único admin). Login con email+password (hash con
+  bcrypt/argon2) y sesión vía cookie firmada httpOnly. **Sin RBAC** — cualquier
+  cuenta admin puede editar contenido y gestionar otras cuentas admin. **Sin
+  registro público** — una cuenta nueva solo la crea otra cuenta admin ya
+  autenticada, desde el panel (la primera cuenta se siembra vía `.env`). Introducir
+  roles/permisos diferenciados exige spec + `ADR-` nuevo (cambia el modelo de auth).
 - Las rutas `/admin/**` y `/api/admin/**` verifican sesión en cada request; nunca
   confiar en que el cliente oculte el enlace.
 - Sin llamadas a APIs externas de pago en esta fase. Cualquier integración futura
@@ -156,3 +160,4 @@ rutas:
 |---|---|---|---|
 | 2026-09-20 | — | Constitución inicial (Génesis: Next.js monolito + Postgres/Prisma + Docker self-host + admin single-user) | ADR-001 |
 | 2026-09-20 | 8 (agentes) | Adopción de `experto-ux-ui` (proyecto con frontend) | ADR-002 |
+| 2026-09-20 | 5 (seguridad) | De un único admin a N administradores, mismo rol, sin RBAC | ADR-003 |

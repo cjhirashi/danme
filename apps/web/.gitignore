@@ -41,6 +41,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# imágenes subidas desde el panel admin — contenido de runtime, vive en el
+# volumen Docker `danme-uploads` (SPEC-002), no en el repo.
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

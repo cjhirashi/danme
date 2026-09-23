@@ -16,12 +16,17 @@
 `standalone` de Next.js. La imagen `runner` corre como usuario no-root (`nextjs`) e
 incluye OpenSSL (requerido por el motor de Prisma).
 
+Volumen `danme-uploads`, montado en `web` sobre `/app/public/uploads` — imágenes
+subidas desde el panel admin (SPEC-002), persisten entre rebuilds de la imagen.
+
 ## Variables de entorno (producción)
 
 | Variable | Dónde se define | Notas |
 |---|---|---|
 | `DATABASE_URL` | `docker-compose.yml` (servicio `web`) | Apunta al servicio `postgres` por nombre de contenedor |
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `docker-compose.yml` (servicio `postgres`) | Ajustar antes de exponer a producción real (valores actuales son de desarrollo) |
+| `SESSION_SECRET` | `.env` (host) → inyectada al servicio `web` | Firma la cookie de sesión del panel admin (SPEC-002). Obligatoria — el compose falla explícito si falta. Generar con `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `.env` (host) | Solo los usa `prisma db seed` para crear la primera cuenta admin — no se usan en runtime normal |
 
 ## Coordinación con Caddy (`cjhirashi-srv`)
 
@@ -34,9 +39,11 @@ archivo `caddy.json` en la raíz del repo:
 - Contrato actual: contenedor `danme-web`, puerto `3000`, host
   `danme.cjhirashi.com`, red `net-danme`.
 - `docker-compose.yml` declara `net-danme` como red **externa** (`external: true`)
-  — la crea `cjhirashi-srv`, este proyecto solo se conecta. Mientras esa red no
-  exista, `docker compose up web` no podrá levantar el servicio (sí puede
-  levantarse `postgres` solo, para desarrollo local).
+  — la crea `cjhirashi-srv`, este proyecto solo se conecta.
+- **Estado (2026-09-20):** `net-danme` ya existe y `danme-web` ya corre conectado a
+  ella (`docker compose up -d web`). Falta que `cjhirashi-srv` corra su
+  `caddy-sync` para generar la ruta pública — coordinación pendiente de su lado,
+  no bloquea el desarrollo local.
 - Coordinación de cambios: mensajes en `caddy.json` → `mensajes[]` (gestionados con
   la herramienta `bin/caddy-msg` del lado de `cjhirashi-srv`).
 

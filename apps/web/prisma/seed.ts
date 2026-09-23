@@ -1,8 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { hashPassword } from "@/lib/services/auth.service";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
+
+// Segunda cuenta admin (propietario del negocio) — su email no es secreto, la
+// contraseña temporal sí viene de env (ADMIN_PASSWORD, compartida con la primera
+// cuenta hasta que cada quien la cambie desde /admin/account — RF-117).
+const SECOND_ADMIN_EMAIL = "danieljime444@gmail.com";
 
 async function main() {
   await prisma.siteSettings.upsert({
@@ -54,6 +60,21 @@ async function main() {
       nomExcesoSodio: true,
     },
   });
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !adminPassword) {
+    throw new Error("ADMIN_EMAIL y ADMIN_PASSWORD son requeridos para sembrar las cuentas admin (SPEC-002)");
+  }
+  const passwordHash = hashPassword(adminPassword);
+
+  for (const email of [adminEmail, SECOND_ADMIN_EMAIL]) {
+    await prisma.adminUser.upsert({
+      where: { email },
+      update: {},
+      create: { email, passwordHash, active: true },
+    });
+  }
 }
 
 main()

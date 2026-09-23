@@ -14,18 +14,50 @@ Perfil de arquitectura completo: `.harness/constitution.md` Art. 2 (ADR-001).
 ```
 app/                    → rutas Next.js (Server Components)
   (public)/page.tsx        landing pública — orquesta las secciones
-components/landing/     → UI de presentación (sin lógica de negocio)
+  admin/login/              login (fuera del layout protegido)
+  admin/(protected)/        productos, settings, usuarios, cuenta — comparten layout con nav
+  api/admin/**               rutas API internas (auth, productos, settings, usuarios, cuenta)
+proxy.ts                → protege /admin/** y /api/admin/** (SPEC-002)
+components/landing/     → UI pública (sin lógica de negocio)
+components/admin/       → UI del panel (formularios, toggles — sin lógica de negocio)
 lib/services/           → casos de uso (lógica de negocio)
-  content.service.ts       catálogo, config del sitio, formateo, link de WhatsApp
+  content.service.ts       catálogo público, config del sitio, formateo, link de WhatsApp
+  auth.service.ts          hash/verify password, firma/verificación de sesión, login/logout
+  admin-users.service.ts   crear/listar/activar cuentas admin, cambio de password propia
+  products-admin.service.ts, site-settings-admin.service.ts   CRUD de contenido (panel)
+  uploads.service.ts       guardar/borrar archivos subidos (imágenes)
 lib/db/                 → acceso a datos (Prisma)
   prisma.ts                 cliente singleton (driver adapter @prisma/adapter-pg)
-  products.repository.ts
-  site-settings.repository.ts
+  products.repository.ts, site-settings.repository.ts, admin-users.repository.ts
+lib/http/                → utilidades transversales de rutas
+  problem-details.ts        RFC 9457 (Art. 6)
+  session-cookie.ts         nombre/formato de la cookie de sesión
 prisma/                 → schema, migraciones, seed
 ```
 
 Regla del patrón: la lógica de negocio vive **solo** en `lib/services/`; las rutas y
 componentes no acceden a Prisma directamente, siempre pasan por el servicio.
+
+## Auth del panel admin (SPEC-002, ADR-003)
+
+N cuentas admin, mismo rol (sin RBAC). Sesión: cookie firmada httpOnly
+**stateless** — sin tabla `Session` en DB. El token es
+`<payload_base64url>.<firma_base64url>`, firmado con HMAC-SHA256
+(`SESSION_SECRET`); el payload lleva `{sub, exp}`. La revocación (p. ej. al
+desactivar una cuenta) no depende de invalidar el token: `getSessionAdmin()`
+siempre relee `AdminUser.active` en Postgres en cada request.
+
+Hashing de passwords: `node:crypto` `scrypt` (sal aleatoria por usuario,
+formato `salt:hash`), sin librerías de terceros (`bcrypt`/`argon2`) — ver
+`lib/services/auth.service.ts`.
+
+## `proxy.ts` (no `middleware.ts`)
+
+Next.js 16 renombró `middleware.ts` a `proxy.ts` (el primero está deprecado).
+`proxy.ts` corre en runtime **Node.js por defecto** en esta versión (antes Edge),
+así que puede usar Prisma y `node:crypto` sin restricciones. Protege `/admin/**` y
+`/api/admin/**`: redirige a `/admin/login` (páginas) o responde 401 RFC 9457
+(`/api/admin/**`) si no hay sesión válida.
 
 ## Renderizado
 
@@ -53,4 +85,4 @@ Caddy administrado por un sistema externo (`cjhirashi-srv`) — ver `docs/DEPLOY
 | Feature | Qué añade | Estado |
 |---|---|---|
 | `001-landing-base` | Landing pública responsive, modelo `Product`/`SiteSettings`, seed | ver `.harness/specs/001-landing-base/` |
-| `002-panel-admin` *(futura)* | Auth de admin único + CRUD de contenido sobre el mismo modelo | no iniciada |
+| `002-panel-admin` | Auth de N admins (mismo rol, ADR-003) + CRUD de contenido + subida de imágenes | ver `.harness/specs/002-panel-admin/` |

@@ -8,6 +8,30 @@ subtipo: history
 > Append-only, orden cronológico inverso (lo más reciente arriba). Una entrada
 > Session-End por sesión, con el formato fijo de `method.md §10`.
 
+## [2026-09-20] SPEC-002 Panel de administración — implemented
+- **Fase alcanzada:** implement (TASKS-002: 61/61 tareas, 20 RF con test y Pass)
+- **Rebotes del verificador:** 0 (self-implementado; pendiente `verified` humano)
+- **Directiva de Pausa:** no
+- **Drift / re-anchor:** sí — `anchor_commit` de SPEC-002 apunta al cierre de
+  Feature 001 (`d8c298a`); se resuelve al commitear esta feature y mover el ancla.
+- **Anclas movidas:** ninguna todavía (pendiente commit)
+- **Gate:** verde (`--full`: 20 ok · 1 warn [drift esperado, ver arriba] · 0 error)
+- **Docs actualizadas:** `docs/CONTENT-MODEL.md`, `docs/ARCHITECTURE.md`,
+  `docs/DEPLOYMENT.md`, `apps/web/README.md`
+- **Decisiones de diseño / límites de integración:**
+  **ADR-003** — de 1 admin a N admins mismo rol (sin RBAC), enmienda Constitución
+  Art. 5, a petición del usuario (Carlos + Daniel, propietario del negocio).
+  Resguardo anti-bloqueo del último admin **propuesto y rechazado explícitamente**
+  por el usuario. Auth casera con `node:crypto` (scrypt + HMAC) — cero
+  dependencias nuevas. Sesión stateless (sin tabla `Session`, revocación vía
+  `AdminUser.active`). `proxy.ts` (Next.js 16 renombró `middleware.ts`, runtime
+  Node.js por defecto) protege `/admin/**` y `/api/admin/**`. Imágenes: subida a
+  disco local, volumen Docker `danme-uploads`. Verificado end-to-end manualmente
+  (login, lockout, CRUD producto+imagen, settings, usuarios, logout) con capturas
+  reales del panel.
+- **Próximo paso:** commit (pendiente aprobación del usuario) → deploy en el
+  servidor real → avisar cambio de password temporal a Carlos y Daniel.
+
 ## [2026-09-20] SPEC-001 Landing pública base — implemented
 - **Fase alcanzada:** implement (TASKS-001: 37/37 tareas, 9 RF con test y Pass)
 - **Rebotes del verificador:** 0 (self-implementado en una sesión; sin verificador adversarial separado — pendiente `verified` humano)

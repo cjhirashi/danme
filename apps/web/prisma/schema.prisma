@@ -23,6 +23,19 @@ model Product {
   updatedAt DateTime @updatedAt
 }
 
+// SPEC-002 §3 — RF-101, RF-103, RF-114, RF-116
+model AdminUser {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  passwordHash        String
+  active              Boolean   @default(true)
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // SPEC-001 §3 — RF-003, RF-004, RF-008. Singleton: una sola fila (id fijo "default").
 model SiteSettings {
   id             String  @id @default("default")

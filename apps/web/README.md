@@ -1,6 +1,6 @@
 # apps/web — danme
 
-Landing pública + (futuro) panel admin de DanMe. Next.js (App Router) + TypeScript +
+Landing pública + panel admin de DanMe. Next.js (App Router) + TypeScript +
 Prisma/Postgres. Arquitectura: `docs/ARCHITECTURE.md`. Modelo de contenido:
 `docs/CONTENT-MODEL.md`.
 
@@ -8,8 +8,12 @@ Prisma/Postgres. Arquitectura: `docs/ARCHITECTURE.md`. Modelo de contenido:
 
 ```bash
 npm install
-cp .env.example .env          # ajustar si tu Postgres local no usa el default
+cp .env.example .env
 ```
+
+Edita `.env`: ajusta `DATABASE_URL` si tu Postgres local no usa el default, genera
+un `SESSION_SECRET` (comando en `.env.example`), y define `ADMIN_EMAIL`/
+`ADMIN_PASSWORD` para la primera cuenta admin.
 
 Levantar Postgres de dev (desde la raíz del repo, no `apps/web/`):
 
@@ -17,12 +21,18 @@ Levantar Postgres de dev (desde la raíz del repo, no `apps/web/`):
 docker compose up -d postgres
 ```
 
-Aplicar migraciones y sembrar datos:
+Aplicar migraciones y sembrar datos (productos + `SiteSettings` + primera cuenta
+admin):
 
 ```bash
 npx prisma migrate deploy   # o `migrate dev` si vas a crear una migración nueva
 npm run db:seed
 ```
+
+Primer login: `http://localhost:3000/admin/login` con el `ADMIN_EMAIL`/
+`ADMIN_PASSWORD` que pusiste en `.env`. Desde `/admin/account` puedes cambiar esa
+contraseña temporal; desde `/admin/users` puedes dar de alta más cuentas admin
+(mismo rol — no hay registro público, ver ADR-003).
 
 ## Comandos
 
@@ -33,13 +43,14 @@ npm run db:seed
 | `npm start` | Sirve el build de producción |
 | `npm run lint` | ESLint |
 | `npm test` | Tests unitarios y de componentes (vitest, sin tocar Postgres) |
-| `npm run test:db` | Tests de repositorio contra Postgres real — requiere la base `danme_test` (ver `.env.test`) |
+| `npm run test:db` | Tests de integración contra Postgres real (repositorios + rutas `/api/admin/**`) — requiere la base `danme_test` (ver `.env.test`) |
 | `npm run db:seed` | Corre `prisma/seed.ts` |
 
 ## Variables de entorno
 
-Ver `.env.example`. La única requerida es `DATABASE_URL` (cadena de conexión
-Postgres). En producción la inyecta `docker-compose.yml` (raíz del repo).
+Ver `.env.example`: `DATABASE_URL`, `SESSION_SECRET` (firma de sesión del panel
+admin) y `ADMIN_EMAIL`/`ADMIN_PASSWORD` (solo para el seed, primera cuenta). En
+producción las inyecta `docker-compose.yml` (raíz del repo).
 
 ## Tests de base de datos (`npm run test:db`)
 
