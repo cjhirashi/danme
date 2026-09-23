@@ -20,19 +20,6 @@ export function Contact({ settings }: { settings: SiteSettings }) {
       >
         Pedir por WhatsApp
       </a>
-
-      <div className="mt-6 flex justify-center gap-4 text-sm">
-        {settings.instagramUrl && (
-          <a href={settings.instagramUrl} className="underline">
-            Instagram
-          </a>
-        )}
-        {settings.facebookUrl && (
-          <a href={settings.facebookUrl} className="underline">
-            Facebook
-          </a>
-        )}
-      </div>
     </section>
   );
 }
