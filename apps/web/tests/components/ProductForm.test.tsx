@@ -18,7 +18,7 @@ describe("ProductForm", () => {
   it("no envía la request si faltan campos requeridos", async () => {
     render(<ProductForm />);
     fireEvent.change(screen.getByLabelText(/nombre/i), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: /guardar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^(crear producto|actualizar)$/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/completa todos los campos/i);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -35,7 +35,7 @@ describe("ProductForm", () => {
     fireEvent.change(screen.getByLabelText(/sabor/i), { target: { value: "habanero" } });
     fireEvent.change(screen.getByLabelText(/descripción/i), { target: { value: "desc" } });
     fireEvent.change(screen.getByLabelText(/presentación/i), { target: { value: "190g" } });
-    fireEvent.click(screen.getByRole("button", { name: /guardar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^(crear producto|actualizar)$/i }));
 
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
       "/api/admin/products",

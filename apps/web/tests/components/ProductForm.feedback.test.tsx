@@ -47,7 +47,7 @@ function pickImage(container: HTMLElement) {
   fireEvent.change(input, { target: { files: [new File(["x"], "jar.jpg", { type: "image/jpeg" })] } });
 }
 
-const submit = () => fireEvent.click(screen.getByRole("button", { name: /guardar/i }));
+const submit = () => fireEvent.click(screen.getByRole("button", { name: /^(crear producto|actualizar)$/i }));
 
 // RF-121, RF-123
 describe("ProductForm — avisos tras guardar", () => {
@@ -104,7 +104,7 @@ describe("ProductForm — avisos tras guardar", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Ya existe un producto con ese sabor");
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(push).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: /guardar/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /^(crear producto|actualizar)$/i })).toBeEnabled();
   });
 
   it("sin red → mensaje de red", async () => {
