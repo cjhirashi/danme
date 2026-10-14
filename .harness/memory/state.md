@@ -67,9 +67,9 @@ actualizado: 2026-10-14
   `danme_danme-uploads` a 1001 + redeploy (`--force-recreate`; `up -d` solo no
   recreó el contenedor). Falta que el usuario confirme una subida real para pasar
   RNF-101 a Pass.
-- Gate en rojo solo por `theme-tokens.test.ts` (oklch con `°` en `globals.css`,
-  commit `8cb5e02`, rediseño de otra sesión — fuera de alcance de la enmienda). Ojo:
-  `°` no es CSS válido; un redeploy con ese commit pierde los colores de marca.
+- Gate en rojo solo por `theme-tokens.test.ts`: el rediseño (otra sesión) dejó los
+  tokens de `globals.css` en `rgb(...)` válido, pero el test espera hex. Lo resuelve
+  quien lleve el rediseño, no la enmienda.
 
 ## Decisiones tomadas (histórico, sigue vigente)
 
