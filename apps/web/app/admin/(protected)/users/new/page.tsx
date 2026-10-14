@@ -37,23 +37,23 @@ export default function NewAdminUserPage() {
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-bold text-verde-oscuro">Nueva cuenta admin</h1>
-      <form onSubmit={handleSubmit} className="flex max-w-sm flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-          Email
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-verde-oscuro">Nueva cuenta admin</h1>
+      <form onSubmit={handleSubmit} className="max-w-sm space-y-4 rounded border border-verde-danme/20 bg-white p-6 shadow-sm">
+        <label className="flex flex-col gap-2">
+          <span className="font-medium text-verde-oscuro">Email</span>
           <input
             type="email"
-            className="rounded border px-3 py-2"
+            className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-          Contraseña temporal
+        <label className="flex flex-col gap-2">
+          <span className="font-medium text-verde-oscuro">Contraseña temporal</span>
           <input
             type="password"
-            className="rounded border px-3 py-2"
+            className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -64,7 +64,7 @@ export default function NewAdminUserPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded bg-verde-danme py-2 font-semibold text-white disabled:opacity-60"
+          className="w-full rounded bg-verde-danme py-2 font-semibold text-white transition-all duration-200 hover:bg-verde-danme/90 hover:shadow-md disabled:opacity-60"
         >
           {saving ? "Creando…" : "Crear cuenta"}
         </button>

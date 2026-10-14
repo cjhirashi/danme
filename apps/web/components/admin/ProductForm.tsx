@@ -73,66 +73,74 @@ export default function ProductForm({ product }: { product?: Product }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex max-w-lg flex-col gap-4">
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Nombre
-        <input className="rounded border px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
+    <form onSubmit={handleSubmit} className="max-w-lg space-y-4 rounded border border-verde-danme/20 bg-white p-6 shadow-sm">
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Nombre</span>
+        <input
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Sabor (slug único)
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Sabor (slug único)</span>
         <input
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme disabled:bg-gray-50"
           value={flavorSlug}
           onChange={(e) => setFlavorSlug(e.target.value)}
           disabled={isEdit}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Descripción
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Descripción</span>
         <textarea
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Precio (centavos MXN)
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Precio (centavos MXN)</span>
         <input
           type="number"
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={priceCents}
           onChange={(e) => setPriceCents(Number(e.target.value))}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Presentación
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Presentación</span>
         <input
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={presentation}
           onChange={(e) => setPresentation(e.target.value)}
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm text-verde-oscuro">
-        <input
-          type="checkbox"
-          checked={nomExcesoCalorias}
-          onChange={(e) => setNomExcesoCalorias(e.target.checked)}
-        />
-        Exceso calorías
-      </label>
-      <label className="flex items-center gap-2 text-sm text-verde-oscuro">
-        <input
-          type="checkbox"
-          checked={nomExcesoSodio}
-          onChange={(e) => setNomExcesoSodio(e.target.checked)}
-        />
-        Exceso sodio
-      </label>
+      <div className="space-y-2 border-t border-verde-danme/10 pt-4">
+        <label className="flex items-center gap-2 text-sm font-medium text-verde-oscuro">
+          <input
+            type="checkbox"
+            checked={nomExcesoCalorias}
+            onChange={(e) => setNomExcesoCalorias(e.target.checked)}
+            className="h-4 w-4 accent-verde-danme"
+          />
+          Exceso calorías (NOM-051)
+        </label>
+        <label className="flex items-center gap-2 text-sm font-medium text-verde-oscuro">
+          <input
+            type="checkbox"
+            checked={nomExcesoSodio}
+            onChange={(e) => setNomExcesoSodio(e.target.checked)}
+            className="h-4 w-4 accent-verde-danme"
+          />
+          Exceso sodio (NOM-051)
+        </label>
+      </div>
 
       <ImageUploadField
         label="Imagen del producto"
@@ -144,7 +152,7 @@ export default function ProductForm({ product }: { product?: Product }) {
                 const removed = await mutate(`/api/admin/products/${product!.id}/image`, { method: "DELETE" });
                 setNotice(
                   removed.ok
-                    ? { variant: "success", message: "Imagen eliminada" }
+                    ? { variant: "success", message: "✅ Imagen eliminada" }
                     : { variant: "error", message: `No se pudo quitar la imagen: ${removed.error}` },
                 );
                 if (removed.ok) router.refresh();
@@ -159,9 +167,9 @@ export default function ProductForm({ product }: { product?: Product }) {
       <button
         type="submit"
         disabled={saving}
-        className="rounded bg-verde-danme py-2 font-semibold text-white disabled:opacity-60"
+        className="w-full rounded bg-verde-danme py-2 font-semibold text-white transition-all duration-200 hover:bg-verde-danme/90 hover:shadow-md disabled:opacity-60"
       >
-        {saving ? "Guardando…" : "Guardar"}
+        {saving ? "Guardando…" : isEdit ? "Actualizar" : "Crear producto"}
       </button>
     </form>
   );

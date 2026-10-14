@@ -5,12 +5,14 @@ import SettingsForm from "@/components/admin/SettingsForm";
 export default async function AdminSettingsPage() {
   const settings = await getSiteSettingsAdmin();
   if (!settings) {
-    return <p className="text-red-600">SiteSettings no está sembrado. Corre el seed primero.</p>;
+    return <div className="rounded border border-red-200 bg-red-50 p-4 text-red-700">
+      ⚠️ SiteSettings no está sembrado. Corre el seed primero.
+    </div>;
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-bold text-verde-oscuro">Configuración del sitio</h1>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-verde-oscuro">Configuración del sitio</h1>
       <SettingsForm settings={settings} />
     </div>
   );

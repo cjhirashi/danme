@@ -49,32 +49,32 @@ export default function AccountPage() {
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-bold text-verde-oscuro">Mi cuenta</h1>
-      <form onSubmit={handleSubmit} className="flex max-w-sm flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-          Contraseña actual
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-verde-oscuro">Mi cuenta</h1>
+      <form onSubmit={handleSubmit} className="max-w-sm space-y-4 rounded border border-verde-danme/20 bg-white p-6 shadow-sm">
+        <label className="flex flex-col gap-2">
+          <span className="font-medium text-verde-oscuro">Contraseña actual</span>
           <input
             type="password"
-            className="rounded border px-3 py-2"
+            className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-          Contraseña nueva
+        <label className="flex flex-col gap-2">
+          <span className="font-medium text-verde-oscuro">Contraseña nueva</span>
           <input
             type="password"
-            className="rounded border px-3 py-2"
+            className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-          Confirmar contraseña nueva
+        <label className="flex flex-col gap-2">
+          <span className="font-medium text-verde-oscuro">Confirmar contraseña nueva</span>
           <input
             type="password"
-            className="rounded border px-3 py-2"
+            className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
@@ -82,7 +82,7 @@ export default function AccountPage() {
 
         {error && (
           <p role="alert" className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+            ⚠️ {error}
           </p>
         )}
         {success && (
@@ -90,14 +90,14 @@ export default function AccountPage() {
             role="status"
             className="rounded border border-verde-danme bg-verde-danme/10 px-4 py-3 text-sm font-medium text-verde-danme"
           >
-            ✓ Contraseña actualizada correctamente.
+            ✅ Contraseña actualizada correctamente.
           </p>
         )}
 
         <button
           type="submit"
           disabled={saving}
-          className="rounded bg-verde-danme py-2 font-semibold text-white disabled:opacity-60"
+          className="w-full rounded bg-verde-danme py-2 font-semibold text-white transition-all duration-200 hover:bg-verde-danme/90 hover:shadow-md disabled:opacity-60"
         >
           {saving ? "Guardando…" : "Cambiar contraseña"}
         </button>
