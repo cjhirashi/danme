@@ -2,7 +2,7 @@
 id: PLAN-002
 tipo: plan
 feature: 002-panel-admin
-estado: in-review
+estado: implemented
 aprobaciones:
   fase_2: { por: "Carlos", fecha: 2026-09-20 }
   enmienda_2026-10-14_fase_2: { por: "Carlos", fecha: 2026-10-14 }

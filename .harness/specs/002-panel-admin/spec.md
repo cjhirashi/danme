@@ -2,9 +2,9 @@
 id: SPEC-002
 tipo: spec
 feature: 002-panel-admin
-estado: in-review
+estado: implemented
 # --- anclaje (fusionado; ver method.md §9) ---
-anchor_commit: c95fdaf49681673a68a4a7d696583f6082ac2e4f
+anchor_commit: 0fb16f8b71ad1b1edf5ad15b26d358e7f28586c2
 anchor_mode: advisory
 covers:
   - apps/web/app/admin/**

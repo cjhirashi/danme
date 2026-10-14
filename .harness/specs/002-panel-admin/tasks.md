@@ -2,7 +2,7 @@
 id: TASKS-002
 tipo: tasks
 feature: 002-panel-admin
-estado: in-review
+estado: implemented
 actualizado: 2026-10-14
 ---
 
@@ -151,17 +151,17 @@ actualizado: 2026-10-14
 | RF-119 | T-035, T-039 | T-034, T-038 (casos 404) | Pass |
 | RF-120 | T-017, T-045, T-053 | T-016, T-044 | Pass |
 | RNF-101 | T-054, T-074 | verificación manual (T-057, T-074) | Pendiente |
-| RF-121 | T-063, T-067, T-071, T-073, T-078 | T-062, T-066, T-070, T-072, T-077 | Pendiente |
-| RF-122 | T-063, T-071, T-073, T-078 | T-062, T-070, T-072, T-077 | Pendiente |
-| RF-123 | T-065, T-067, T-071 | T-064, T-066, T-070 | Pendiente |
-| RF-124 | T-069, T-074, T-078 | T-068, T-077, verificación manual (T-074) | Pendiente |
+| RF-121 | T-063, T-067, T-071, T-073, T-078 | T-062, T-066, T-070, T-072, T-077 | Pass |
+| RF-122 | T-063, T-071, T-073, T-078 | T-062, T-070, T-072, T-077 | Pass |
+| RF-123 | T-065, T-067, T-071 | T-064, T-066, T-070 | Pass |
+| RF-124 | T-069, T-074, T-078 | T-068, T-077, verificación manual (T-074) | Pass |
 | RNF-102 | T-022, T-024, T-041, T-045 | revisión de código (sin campo password en respuestas) | Pass |
 | doc: content-model | T-058 | — | Pass |
 | doc: arch | T-059 | — | Pass |
 | doc: deploy | T-060 | — | Pass |
 | doc: readme | T-061 | — | Pass |
-| doc: arch-enmienda | T-075 | — | Pendiente |
-| doc: deploy-enmienda | T-076 | — | Pendiente |
+| doc: arch-enmienda | T-075 | — | Pass |
+| doc: deploy-enmienda | T-076 | — | Pass |
 
 > Esta tabla **es** la trazabilidad de la feature (no hay `traceability-matrix.md`).
 > Fila sin test, en `Fail` o `Pendiente` → el gate no abre.

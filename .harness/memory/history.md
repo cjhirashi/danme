@@ -8,6 +8,27 @@ subtipo: history
 > Append-only, orden cronológico inverso (lo más reciente arriba). Una entrada
 > Session-End por sesión, con el formato fijo de `method.md §10`.
 
+## [2026-10-14] SPEC-002 enmienda — avisos de escritura + subida de imágenes — implemented
+- **Fase alcanzada:** implement (T-062..T-078; RF-121..RF-124 con test y Pass)
+- **Rebotes del verificador:** 2 (1: `account/page.tsx` con fetch crudo, `saved.data.id`
+  sin guardia, `readUpload` sin `realpath`, `deleteUpload` sin `path.sep` → T-077/T-078;
+  2: 10 tests de ProductForm rotos por el rediseño `90041da` → selectores actualizados)
+- **Directiva de Pausa:** no
+- **Drift / re-anchor:** sí — los cambios de la enmienda quedaron commiteados por la
+  sesión de rediseño dentro de `df9ab11` (mensaje "fix: add native CSS animations…").
+- **Anclas movidas:** SPEC-002 `anchor_commit` → `0fb16f8b71ad1b1edf5ad15b26d358e7f28586c2`
+- **Gate:** rojo (20 ok · 0 warn · 1 error) — único fallo `theme-tokens.test.ts` por el
+  oklch con `°` de `8cb5e02` (rediseño visual, fuera de alcance por decisión del usuario)
+- **Docs actualizadas:** `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`
+- **Decisiones de diseño / límites de integración:** causa raíz triple — volumen
+  `danme-uploads` con dueño root (EACCES), cliente que ignoraba la respuesta, y Next en
+  producción indexando `public/` solo al arrancar (404 de lo subido) → `Dockerfile`
+  crea `public/uploads` con dueño `nextjs`, wrapper `lib/admin/mutate.ts`, aviso flash
+  por `sessionStorage` (no query string: un enlace podría falsear avisos), route handler
+  `app/uploads/[...path]`. Verificado e2e en contenedor de prueba + danme_test.
+- **Próximo paso:** con permiso del usuario, `chown -R 1001:1001` del volumen
+  `danme-uploads` en producción y redeploy; verificar 0 EACCES y una subida real.
+
 ## [2026-09-20] SPEC-002 Panel de administración — implemented
 - **Fase alcanzada:** implement (TASKS-002: 61/61 tareas, 20 RF con test y Pass)
 - **Rebotes del verificador:** 0 (self-implementado; pendiente `verified` humano)

@@ -1,7 +1,7 @@
 ---
 tipo: memoria
 subtipo: state
-actualizado: 2026-09-20
+actualizado: 2026-10-14
 ---
 
 # Estado del arnés — danme
@@ -60,6 +60,14 @@ actualizado: 2026-09-20
   cambio de password ahora pide confirmación (debe coincidir, ≥8 caracteres) y
   muestra un banner de éxito visible (antes el usuario no veía confirmación
   ninguna). Commit `1b6edb8`, redesplegado en producción.
+
+- **Enmienda SPEC-002 (2026-10-14):** avisos visibles en toda escritura del panel
+  (RF-121..RF-123) y subida de imágenes arreglada (RF-124, RNF-101). `implemented`,
+  aprobada por el revisor. **Producción aún sin arreglar:** falta `chown` único del
+  volumen `danme-uploads` + redeploy (requiere permiso del usuario).
+- Gate en rojo solo por `theme-tokens.test.ts` (oklch con `°` en `globals.css`,
+  commit `8cb5e02`, rediseño de otra sesión — fuera de alcance de la enmienda). Ojo:
+  `°` no es CSS válido; un redeploy con ese commit pierde los colores de marca.
 
 ## Decisiones tomadas (histórico, sigue vigente)
 
@@ -131,3 +139,6 @@ actualizado: 2026-09-20
 2. Avisar a Carlos y Daniel que cambien la password temporal (`admin1234`) desde
    `/admin/account` en cuanto tengan acceso.
 3. Sin Feature 003 planeada todavía.
+4. Con permiso: `docker run --rm -v danme-uploads:/data alpine chown -R 1001:1001 /data`
+   + `docker compose build web && docker compose up -d web`; luego
+   `docker logs danme-web | grep EACCES` vacío y subir una imagen real.
