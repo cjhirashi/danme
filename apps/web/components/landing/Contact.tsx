@@ -16,7 +16,7 @@ export function Contact({ settings }: { settings: SiteSettings }) {
         href={whatsappLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-6 inline-block rounded-full bg-white px-6 py-3 font-semibold text-verde-danme transition hover:opacity-90"
+        className="mt-6 inline-block rounded-full bg-white px-6 py-3 font-semibold text-verde-danme transition-all duration-200 hover:shadow-lg hover:scale-105"
       >
         Pedir por WhatsApp
       </a>
