@@ -16,7 +16,7 @@
 `standalone` de Next.js. La imagen `runner` corre como usuario no-root (`nextjs`) e
 incluye OpenSSL (requerido por el motor de Prisma).
 
-Volumen `danme-uploads`, montado en `web` sobre `/app/public/uploads` — imágenes
+Volumen `danme-uploads` (en Docker: `danme_danme-uploads`, prefijo del proyecto compose), montado en `web` sobre `/app/public/uploads` — imágenes
 subidas desde el panel admin (SPEC-002), persisten entre rebuilds de la imagen.
 
 **Dueño del volumen (RNF-101):** el proceso corre como `nextjs` (uid 1001) y
@@ -26,7 +26,7 @@ volumen **creado antes** de ese cambio (caso de producción hasta 2026-10-14) qu
 con dueño `root` y toda subida falla con `EACCES` — se corrige una sola vez:
 
 ```bash
-docker run --rm -v danme-uploads:/data alpine chown -R 1001:1001 /data
+docker run --rm -v danme_danme-uploads:/data alpine chown -R 1001:1001 /data
 ```
 
 Síntoma si vuelve a pasar: `docker logs danme-web | grep EACCES`.
