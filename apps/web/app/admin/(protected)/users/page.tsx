@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { listAdmins } from "@/lib/services/admin-users.service";
 import UserActiveToggle from "@/components/admin/UserActiveToggle";
+import FlashNotice from "@/components/admin/FlashNotice";
 
-// RF-114, RF-116
+// RF-114, RF-116, RF-123
 export default async function AdminUsersPage() {
   const admins = await listAdmins();
 
@@ -14,6 +15,8 @@ export default async function AdminUsersPage() {
           Nueva cuenta
         </Link>
       </div>
+
+      <FlashNotice />
 
       <table className="w-full text-left text-sm">
         <thead>
@@ -29,7 +32,7 @@ export default async function AdminUsersPage() {
               <td className="py-2">{admin.email}</td>
               <td>{admin.active ? "Sí" : "No"}</td>
               <td>
-                <UserActiveToggle userId={admin.id} active={admin.active} />
+                <UserActiveToggle userId={admin.id} email={admin.email} active={admin.active} />
               </td>
             </tr>
           ))}

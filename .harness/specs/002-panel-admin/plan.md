@@ -2,10 +2,11 @@
 id: PLAN-002
 tipo: plan
 feature: 002-panel-admin
-estado: implemented
+estado: in-review
 aprobaciones:
   fase_2: { por: "Carlos", fecha: 2026-09-20 }
-actualizado: 2026-09-20
+  enmienda_2026-10-14_fase_2: { por: "Carlos", fecha: 2026-10-14 }
+actualizado: 2026-10-14
 ---
 
 # PLAN-002 · Panel de administración (auth + CRUD de contenido)
@@ -161,3 +162,98 @@ Tests antes que código, por capa:
 | Arquitectura | `docs/ARCHITECTURE.md` | Añade capa admin (`proxy.ts`, `lib/http/problem-details.ts`, servicios nuevos) | `[doc]` T-arch |
 | Deploy / infra | `docs/DEPLOYMENT.md` | Volumen `danme-uploads`, env vars `ADMIN_EMAIL`/`ADMIN_PASSWORD`/`SESSION_SECRET` | `[doc]` T-deploy |
 | README del servicio | `apps/web/README.md` | Setup de la primera cuenta admin, nuevas env vars | `[doc]` T-readme |
+
+---
+
+## 9. Enmienda 2026-10-14 — retroalimentación de escritura y uploads en producción
+
+> Cubre RF-121..RF-124 y la precisión de RNF-101 (ver `spec.md`, enmienda 2026-10-14).
+> Diagnóstico en producción: `EACCES` en `mkdir/open` bajo `/app/public/uploads`
+> (volumen con dueño `root`, proceso `nextjs` uid 1001), y el formulario ignoraba la
+> respuesta. Además, el servidor de producción de Next.js indexa `public/` **una sola
+> vez al arrancar** (`router-utils/filesystem.js`): un archivo subido después da 404
+> hasta reiniciar.
+
+### Implementación de RNF-101 (precisión: permiso de escritura)
+- `apps/web/Dockerfile` (`runner`): crear `public/uploads/{products,settings}` con
+  dueño `nextjs:nodejs`. Un volumen nombrado **vacío** hereda ese dueño al primer
+  montaje; el volumen **ya existente** en producción necesita un `chown -R 1001:1001`
+  único (paso operativo, con aprobación explícita del usuario — documentado en
+  `docs/DEPLOYMENT.md`).
+
+### Implementación de RF-124 (imagen visible de inmediato)
+- Nuevo route handler `apps/web/app/uploads/[...path]/route.ts` (`GET`, público — la
+  landing también lo consume; `proxy.ts` no lo intercepta). Lee de `UPLOADS_ROOT`
+  vía una función nueva `readUpload(segments)` en `uploads.service.ts`:
+  - solo extensiones `jpg|png|webp` (Content-Type según extensión);
+  - ruta resuelta debe quedar dentro de `UPLOADS_ROOT` (anti path traversal) →
+    si no, o si no existe: 404 RFC 9457;
+  - `Cache-Control: public, max-age=31536000, immutable` (nombres UUID, nunca se
+    reescriben).
+- Los archivos presentes al arrancar siguen sirviéndose como estáticos (Next revisa
+  `public/` antes que las rutas de app); los subidos después caen en el handler.
+  Las URLs `/uploads/...` guardadas en BD no cambian.
+
+### Implementación de RF-121 / RF-122 (mensaje siempre, con motivo)
+- `apps/web/lib/admin/mutate.ts` (cliente): `mutate(url, init)` →
+  `{ ok: true, data } | { ok: false, error }`. Atrapa errores de red ("No se pudo
+  conectar con el servidor") y en no-2xx extrae `detail` RFC 9457 (fallback:
+  `"Error <status>"`). Todo `fetch` de escritura del panel pasa por aquí.
+- `apps/web/components/admin/Notice.tsx`: aviso con variante `success`
+  (`role="status"`, verde DanMe) / `error` (`role="alert"`, rojo) / `warning`
+  (resultado parcial), con botón "Cerrar".
+- Puntos que hoy ignoran la respuesta y se corrigen: `ProductForm` (subir y quitar
+  imagen), `SettingsForm` (guardar, subir logo, quitar logo),
+  `ProductAvailabilityToggle`, `UserActiveToggle`; `users/new` gana mensaje de éxito.
+  `account/page.tsx` también pasa a `mutate` (revisión: con la red caída el `fetch`
+  crudo lanzaba y el botón quedaba en "Guardando…" sin aviso). `LogoutButton` se deja
+  igual: no escribe contenido y su resultado visible es la redirección al login.
+- `ProductForm`: un 2xx sin cuerpo JSON no debe lanzar — en edición usa el id ya
+  conocido; en alta, la imagen se reporta como no subida (aviso `warning`).
+- `readUpload` resuelve `realpath` y exige que quede dentro de `UPLOADS_ROOT` (un
+  symlink no saca archivos de fuera). `deleteUpload` (preexistente) gana el mismo
+  chequeo con separador (`uploads-evil` no cuenta como dentro).
+
+### Implementación de RF-123 (aviso persistente tras guardar producto)
+- `apps/web/lib/admin/flash.ts`: `setFlash(notice)` / `consumeFlash()` sobre
+  `sessionStorage` (try/catch: si no hay storage, el aviso se pierde pero la
+  operación no falla) + evento `window` `danme:flash` para avisos emitidos sin
+  cambiar de página (toggles).
+- `apps/web/components/admin/FlashNotice.tsx`: consume el flash al montar y escucha
+  el evento; renderiza `Notice` hasta que se cierra. Se monta en las listas de
+  productos y usuarios.
+- Se descartó pasar el mensaje por query string: cualquiera podría fabricar un link
+  que muestre un aviso falso dentro del panel.
+- `ProductForm` tras guardar: `setFlash` con "Producto creado"/"Producto actualizado"
+  o, si la imagen falló, warning "Producto guardado, pero la imagen no se pudo
+  subir: ‹motivo›"; luego `router.push("/admin/products")`. Si el registro mismo
+  falla, se queda en el formulario con el error (comportamiento actual).
+
+### Pruebas (por zona)
+| Zona | Qué se prueba | Herramienta |
+|---|---|---|
+| `lib/admin/mutate.ts` | 2xx → ok+data; 4xx con `detail` → error con motivo; 4xx sin JSON → `Error <status>`; `fetch` rechaza → mensaje de red | vitest (unit, `fetch` mock) |
+| `lib/admin/flash.ts` | set→consume devuelve y borra; storage que lanza no rompe | vitest (unit) |
+| `uploads.service.ts` `readUpload` | lee archivo válido; `..`/ruta absoluta/extensión no permitida/inexistente → null | vitest (unit, dir temporal) |
+| `app/uploads/[...path]/route.ts` | 200 + Content-Type + Cache-Control; 404 RFC 9457 en traversal/inexistente | vitest (unit, `UPLOADS_ROOT` mockeado) |
+| `Notice`, `FlashNotice` | roles ARIA por variante; cerrar lo oculta; consume flash al montar y por evento | vitest + Testing Library |
+| `ProductForm`, `SettingsForm`, toggles, `users/new` | éxito → mensaje de éxito; fallo de registro → error con motivo; fallo solo de imagen → warning parcial; error de red → mensaje de red | vitest + Testing Library |
+| `Dockerfile` / volumen | build de la imagen + upload real contra el contenedor local; imagen subida responde 200 sin reiniciar | verificación manual con evidencia |
+
+### Secuenciación (tests antes que código)
+1. `mutate.ts` + `flash.ts` (tests → código).
+2. `Notice` + `FlashNotice` (tests → código).
+3. `readUpload` + route handler `/uploads/[...path]` (tests → código).
+4. Formularios y toggles (tests → refactor a `mutate` + avisos), listas montan `FlashNotice`.
+5. `Dockerfile` → build local → verificación manual end-to-end.
+6. Docs.
+
+### Seguimiento de complejidad
+Sin dependencias nuevas. Sin librería de toasts: `Notice` + `sessionStorage` (≈60
+líneas) bastan para 2 listas.
+
+### Impacto en documentación (enmienda)
+| Documento | Ruta | Qué cambia | Tarea |
+|---|---|---|---|
+| Arquitectura | `docs/ARCHITECTURE.md` | `/uploads/*` servido por route handler además del estático; `lib/admin/` (mutate, flash) y regla "toda escritura muestra aviso" | `[doc]` T-075 |
+| Deploy / infra | `docs/DEPLOYMENT.md` | Dueño del volumen `danme-uploads` (uid 1001) y `chown` único para volúmenes existentes | `[doc]` T-076 |

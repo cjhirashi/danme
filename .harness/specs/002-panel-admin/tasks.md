@@ -2,8 +2,8 @@
 id: TASKS-002
 tipo: tasks
 feature: 002-panel-admin
-estado: implemented
-actualizado: 2026-09-20
+estado: in-review
+actualizado: 2026-10-14
 ---
 
 # TASKS-002 · Panel de administración (auth + CRUD de contenido)
@@ -108,6 +108,25 @@ actualizado: 2026-09-20
 - [x] T-060 — Actualizar `docs/DEPLOYMENT.md` (volumen uploads, env vars nuevas) [doc]
 - [x] T-061 — Actualizar `apps/web/README.md` (setup primera cuenta admin) [doc]
 
+### Enmienda 2026-10-14 — retroalimentación de escritura y uploads (plan §9)
+- [x] T-062 — Test unit: `mutate` (2xx, 4xx con `detail`, 4xx sin JSON, error de red) (cubre RF-121, RF-122) [zona: test]
+- [x] T-063 — Implementar `lib/admin/mutate.ts` (cubre RF-121, RF-122) [zona: frontera cliente]
+- [x] T-064 — Test unit: `setFlash`/`consumeFlash` + storage que lanza (cubre RF-123) [zona: test]
+- [x] T-065 — Implementar `lib/admin/flash.ts` (cubre RF-123) [zona: frontera cliente]
+- [x] T-066 — Test componente: `Notice` (roles por variante, cerrar) y `FlashNotice` (consume al montar y por evento) (cubre RF-121, RF-123) [zona: test]
+- [x] T-067 — Implementar `Notice.tsx` y `FlashNotice.tsx` (cubre RF-121, RF-123) [zona: UI]
+- [x] T-068 — Test unit: `readUpload` (válido, traversal, extensión no permitida, inexistente) y route handler `/uploads/[...path]` (200 + headers, 404 RFC 9457) (cubre RF-124) [zona: test]
+- [x] T-069 — Implementar `readUpload` en `uploads.service.ts` y `app/uploads/[...path]/route.ts` (cubre RF-124) [zona: servicio + frontera entrada]
+- [x] T-070 — Test componente: `ProductForm` — creado/actualizado → flash de éxito; imagen falla → flash warning con motivo; registro falla → error en formulario; quitar imagen → aviso (cubre RF-121, RF-122, RF-123) [zona: test]
+- [x] T-071 — Refactor `ProductForm` a `mutate` + flash/avisos; montar `FlashNotice` en lista de productos (cubre RF-121, RF-122, RF-123) [zona: UI]
+- [x] T-072 — Test componente: `SettingsForm` (guardar ok/falla, logo falla → parcial, quitar logo), toggles de producto/usuario y `users/new` (éxito y error) (cubre RF-121, RF-122) [zona: test]
+- [x] T-073 — Refactor `SettingsForm`, `ProductAvailabilityToggle`, `UserActiveToggle`, `users/new` a `mutate` + avisos; montar `FlashNotice` en lista de usuarios (cubre RF-121, RF-122) [zona: UI]
+- [x] T-074 — `Dockerfile`: `public/uploads/{products,settings}` con dueño `nextjs:nodejs`; build local + upload real end-to-end sin reiniciar (cubre RNF-101, RF-124) [zona: infra]
+- [x] T-075 — [doc] `docs/ARCHITECTURE.md`: `/uploads/*` vía route handler, `lib/admin/`, regla de avisos (cubre doc: arch-enmienda)
+- [x] T-076 — [doc] `docs/DEPLOYMENT.md`: dueño del volumen y `chown` único (cubre doc: deploy-enmienda)
+- [x] T-077 — Tests (rojo): `AccountPage` con error de red → alerta "No se pudo conectar…" y botón liberado; `ProductForm` con 2xx sin cuerpo + imagen (alta → aviso; edición → sube al id conocido); `readUpload` con symlink, `%2e%2e` y byte nulo; `deleteUpload` en carpeta hermana `uploads-evil` (cubre RF-121, RF-122, RF-124) [zona: ui+servicio] — hallazgos del revisor
+- [x] T-078 — `account/page.tsx` vía `mutate`; `ProductForm` sin `saved.data.id` crudo; `readUpload` con `realpath`; `deleteUpload` con `path.sep` (cubre RF-121, RF-122, RF-124) [zona: ui+servicio]
+
 ## Cobertura (el gate exige 100 %; `Estado` lo rellena el gate)
 | RF / doc | Tareas | Test(s) | Estado |
 |---|---|---|---|
@@ -131,12 +150,18 @@ actualizado: 2026-09-20
 | RF-118 | T-013, T-029 | T-012, T-028 | Pass |
 | RF-119 | T-035, T-039 | T-034, T-038 (casos 404) | Pass |
 | RF-120 | T-017, T-045, T-053 | T-016, T-044 | Pass |
-| RNF-101 | T-054 | verificación manual (T-057) | Pass |
+| RNF-101 | T-054, T-074 | verificación manual (T-057, T-074) | Pendiente |
+| RF-121 | T-063, T-067, T-071, T-073, T-078 | T-062, T-066, T-070, T-072, T-077 | Pendiente |
+| RF-122 | T-063, T-071, T-073, T-078 | T-062, T-070, T-072, T-077 | Pendiente |
+| RF-123 | T-065, T-067, T-071 | T-064, T-066, T-070 | Pendiente |
+| RF-124 | T-069, T-074, T-078 | T-068, T-077, verificación manual (T-074) | Pendiente |
 | RNF-102 | T-022, T-024, T-041, T-045 | revisión de código (sin campo password en respuestas) | Pass |
 | doc: content-model | T-058 | — | Pass |
 | doc: arch | T-059 | — | Pass |
 | doc: deploy | T-060 | — | Pass |
 | doc: readme | T-061 | — | Pass |
+| doc: arch-enmienda | T-075 | — | Pendiente |
+| doc: deploy-enmienda | T-076 | — | Pendiente |
 
 > Esta tabla **es** la trazabilidad de la feature (no hay `traceability-matrix.md`).
 > Fila sin test, en `Fail` o `Pendiente` → el gate no abre.

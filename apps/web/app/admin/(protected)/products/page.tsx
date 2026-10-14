@@ -2,8 +2,9 @@ import Link from "next/link";
 import { listAllProducts } from "@/lib/services/products-admin.service";
 import { formatPrice } from "@/lib/services/content.service";
 import ProductAvailabilityToggle from "@/components/admin/ProductAvailabilityToggle";
+import FlashNotice from "@/components/admin/FlashNotice";
 
-// RF-106, RF-107, RF-108
+// RF-106, RF-107, RF-108, RF-123
 export default async function AdminProductsPage() {
   const products = await listAllProducts();
 
@@ -15,6 +16,8 @@ export default async function AdminProductsPage() {
           Nuevo producto
         </Link>
       </div>
+
+      <FlashNotice />
 
       <table className="w-full text-left text-sm">
         <thead>
@@ -35,7 +38,7 @@ export default async function AdminProductsPage() {
                 <Link href={`/admin/products/${product.id}`} className="underline">
                   Editar
                 </Link>
-                <ProductAvailabilityToggle productId={product.id} available={product.available} />
+                <ProductAvailabilityToggle productId={product.id} productName={product.name} available={product.available} />
               </td>
             </tr>
           ))}

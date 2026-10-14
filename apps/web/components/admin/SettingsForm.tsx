@@ -4,8 +4,11 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteSettings } from "@prisma/client";
 import ImageUploadField from "@/components/admin/ImageUploadField";
+import Notice from "@/components/admin/Notice";
+import { mutate } from "@/lib/admin/mutate";
+import type { Flash } from "@/lib/admin/flash";
 
-// RF-112, RF-113
+// RF-112, RF-113, RF-121, RF-122
 export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
   const [brandName, setBrandName] = useState(settings.brandName);
@@ -16,14 +19,14 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [facebookUrl, setFacebookUrl] = useState(settings.facebookUrl ?? "");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [notice, setNotice] = useState<Flash | null>(null);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setSaving(true);
-    setMessage(null);
+    setNotice(null);
 
-    await fetch("/api/admin/settings", {
+    const saved = await mutate("/api/admin/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -36,14 +39,24 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
       }),
     });
 
+    if (!saved.ok) {
+      setSaving(false);
+      setNotice({ variant: "error", message: `No se pudieron guardar los cambios: ${saved.error}` });
+      return;
+    }
+
+    let next: Flash = { variant: "success", message: "Los cambios se guardaron y ya se ven en la landing." };
     if (logoFile) {
       const form = new FormData();
       form.set("file", logoFile);
-      await fetch("/api/admin/settings/logo", { method: "POST", body: form });
+      const upload = await mutate("/api/admin/settings/logo", { method: "POST", body: form });
+      next = upload.ok
+        ? { variant: "success", message: "Los cambios y el logo se guardaron y ya se ven en la landing." }
+        : { variant: "warning", message: `Los cambios se guardaron, pero el logo no se pudo subir: ${upload.error}` };
     }
 
     setSaving(false);
-    setMessage("Los cambios se guardaron y ya se ven en la landing.");
+    setNotice(next);
     router.refresh();
   }
 
@@ -95,19 +108,17 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
         currentUrl={settings.logoUrl}
         onFileSelected={setLogoFile}
         onRemoveCurrent={async () => {
-          await fetch("/api/admin/settings/logo", { method: "DELETE" });
-          router.refresh();
+          const removed = await mutate("/api/admin/settings/logo", { method: "DELETE" });
+          setNotice(
+            removed.ok
+              ? { variant: "success", message: "Logo eliminado" }
+              : { variant: "error", message: `No se pudo quitar el logo: ${removed.error}` },
+          );
+          if (removed.ok) router.refresh();
         }}
       />
 
-      {message && (
-        <p
-          role="status"
-          className="rounded border border-verde-danme bg-verde-danme/10 px-4 py-3 text-sm font-medium text-verde-danme"
-        >
-          ✓ {message}
-        </p>
-      )}
+      {notice && <Notice variant={notice.variant} message={notice.message} onClose={() => setNotice(null)} />}
 
       <button
         type="submit"

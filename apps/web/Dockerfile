@@ -28,6 +28,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# SPEC-002 RNF-101: el volumen danme-uploads se monta aquí. Un volumen nombrado
+# vacío hereda el dueño de este directorio al primer montaje — si queda en root,
+# el proceso (uid 1001) no puede escribir y toda subida falla con EACCES.
+RUN mkdir -p public/uploads/products public/uploads/settings \
+  && chown -R nextjs:nodejs public/uploads
 
 USER nextjs
 EXPOSE 3000

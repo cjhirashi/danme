@@ -10,7 +10,7 @@
       "web": "danme.cjhirashi.com"
     },
     "estado": "validado",
-    "ultima_sync": "2026-09-20"
+    "ultima_sync": "2026-10-14"
   },
   "servicios": [
     {
@@ -20,7 +20,9 @@
       "protocolo": "http",
       "sse": false,
       "healthcheck": "/",
-      "headers_up": [],
+      "headers_up": [
+        "Cache-Control no-cache, no-store, must-revalidate"
+      ],
       "rutas": [
         {
           "prefijo": "/"

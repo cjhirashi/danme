@@ -19,6 +19,18 @@ incluye OpenSSL (requerido por el motor de Prisma).
 Volumen `danme-uploads`, montado en `web` sobre `/app/public/uploads` — imágenes
 subidas desde el panel admin (SPEC-002), persisten entre rebuilds de la imagen.
 
+**Dueño del volumen (RNF-101):** el proceso corre como `nextjs` (uid 1001) y
+necesita escribir ahí. El `Dockerfile` crea `public/uploads/{products,settings}`
+con ese dueño, y un volumen nombrado **vacío** lo hereda al primer montaje. Un
+volumen **creado antes** de ese cambio (caso de producción hasta 2026-10-14) queda
+con dueño `root` y toda subida falla con `EACCES` — se corrige una sola vez:
+
+```bash
+docker run --rm -v danme-uploads:/data alpine chown -R 1001:1001 /data
+```
+
+Síntoma si vuelve a pasar: `docker logs danme-web | grep EACCES`.
+
 ## Variables de entorno (producción)
 
 | Variable | Dónde se define | Notas |

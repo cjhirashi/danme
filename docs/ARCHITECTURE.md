@@ -17,6 +17,7 @@ app/                    → rutas Next.js (Server Components)
   admin/login/              login (fuera del layout protegido)
   admin/(protected)/        productos, settings, usuarios, cuenta — comparten layout con nav
   api/admin/**               rutas API internas (auth, productos, settings, usuarios, cuenta)
+  uploads/[...path]/         sirve imágenes subidas en runtime (pública — ver abajo)
 proxy.ts                → protege /admin/** y /api/admin/** (SPEC-002)
 components/landing/     → UI pública (sin lógica de negocio)
 components/admin/       → UI del panel (formularios, toggles — sin lógica de negocio)
@@ -29,6 +30,9 @@ lib/services/           → casos de uso (lógica de negocio)
 lib/db/                 → acceso a datos (Prisma)
   prisma.ts                 cliente singleton (driver adapter @prisma/adapter-pg)
   products.repository.ts, site-settings.repository.ts, admin-users.repository.ts
+lib/admin/               → utilidades de cliente del panel
+  mutate.ts                 todo fetch de escritura del panel: nunca ignora la respuesta, devuelve motivo de error
+  flash.ts                  aviso que sobrevive a navegar (sessionStorage), p. ej. guardar producto → lista
 lib/http/                → utilidades transversales de rutas
   problem-details.ts        RFC 9457 (Art. 6)
   session-cookie.ts         nombre/formato de la cookie de sesión
@@ -37,6 +41,24 @@ prisma/                 → schema, migraciones, seed
 
 Regla del patrón: la lógica de negocio vive **solo** en `lib/services/`; las rutas y
 componentes no acceden a Prisma directamente, siempre pasan por el servicio.
+
+## Imágenes subidas (SPEC-002 RF-109..RF-113, RF-124, RNF-101)
+
+Se guardan en `public/uploads/{products,settings}/<uuid>.<ext>` (volumen Docker
+`danme-uploads`). El server de producción de Next.js indexa `public/` **una sola vez
+al arrancar**: lo que existía al arrancar se sirve como estático; lo subido después
+lo sirve `app/uploads/[...path]/route.ts` leyendo el volumen
+(`uploads.service.ts` → `readUpload`, solo jpg/png/webp, nunca fuera de
+`UPLOADS_ROOT`). Las URLs `/uploads/...` guardadas en BD son las mismas en ambos casos.
+
+## Retroalimentación de escritura en el panel (SPEC-002 RF-121..RF-123)
+
+Regla: **toda operación de escritura termina en un aviso visible** (`Notice`) de
+éxito, error con motivo, o éxito parcial (p. ej. "Producto guardado, pero la imagen
+no se pudo subir: ‹motivo›"). Los `fetch` de escritura pasan por `lib/admin/mutate.ts`;
+cuando la acción navega (guardar producto, crear cuenta) o refresca una lista
+(toggles), el aviso viaja con `lib/admin/flash.ts` y lo pinta `FlashNotice` en la
+lista hasta que el usuario lo cierra.
 
 ## Auth del panel admin (SPEC-002, ADR-003)
 

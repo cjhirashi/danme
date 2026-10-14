@@ -34,7 +34,7 @@ describe("AccountPage", () => {
   });
 
   it("muestra una confirmación visible cuando el cambio es exitoso", async () => {
-    fetchMock.mockResolvedValueOnce({ ok: true });
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
 
     render(<AccountPage />);
     fireEvent.change(screen.getByLabelText(/contraseña actual/i), { target: { value: "current-pass" } });
@@ -46,10 +46,9 @@ describe("AccountPage", () => {
   });
 
   it("muestra el error del servidor si la contraseña actual es incorrecta", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ detail: "La contraseña actual no es correcta" }),
-    });
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ detail: "La contraseña actual no es correcta" }), { status: 401 }),
+    );
 
     render(<AccountPage />);
     fireEvent.change(screen.getByLabelText(/contraseña actual/i), { target: { value: "wrong" } });
@@ -58,5 +57,19 @@ describe("AccountPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/no es correcta/i);
+  });
+
+  // RF-121, RF-122 — sin conexión el botón no puede quedarse en "Guardando…" sin aviso
+  it("muestra 'no se pudo conectar' y libera el botón si fetch falla por red", async () => {
+    fetchMock.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    render(<AccountPage />);
+    fireEvent.change(screen.getByLabelText(/contraseña actual/i), { target: { value: "current-pass" } });
+    fireEvent.change(screen.getByLabelText(/^contraseña nueva/i), { target: { value: "newpassword123" } });
+    fireEvent.change(screen.getByLabelText(/confirmar contraseña/i), { target: { value: "newpassword123" } });
+    fireEvent.click(screen.getByRole("button", { name: /cambiar contraseña/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudo cambiar la contraseña: No se pudo conectar con el servidor");
+    expect(screen.getByRole("button", { name: /cambiar contraseña/i })).toBeEnabled();
   });
 });

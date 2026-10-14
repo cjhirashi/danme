@@ -73,4 +73,16 @@ describe("uploads.service", () => {
     await expect(deleteUpload(null)).resolves.not.toThrow();
     await expect(deleteUpload("/uploads/products/no-existe.jpg")).resolves.not.toThrow();
   });
+
+  it("deleteUpload no borra en una carpeta hermana con el mismo prefijo", async () => {
+    const sibling = `${uploadsRoot}-evil`;
+    await fs.mkdir(sibling);
+    await fs.writeFile(path.join(sibling, "x.jpg"), "x");
+    try {
+      await deleteUpload(`/uploads/../${path.basename(uploadsRoot)}-evil/x.jpg`);
+      await expect(fs.stat(path.join(sibling, "x.jpg"))).resolves.toBeTruthy();
+    } finally {
+      await fs.rm(sibling, { recursive: true, force: true });
+    }
+  });
 });

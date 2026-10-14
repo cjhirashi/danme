@@ -2,8 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Notice from "@/components/admin/Notice";
+import { mutate } from "@/lib/admin/mutate";
+import { setFlash } from "@/lib/admin/flash";
 
-// RF-114, RF-115
+// RF-114, RF-115, RF-121, RF-122
 export default function NewAdminUserPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -16,19 +19,19 @@ export default function NewAdminUserPage() {
     setError(null);
     setSaving(true);
 
-    const res = await fetch("/api/admin/users", {
+    const result = await mutate("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
     setSaving(false);
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setError(body?.detail ?? "No se pudo crear la cuenta");
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
 
+    setFlash({ variant: "success", message: `Cuenta ${email} creada` });
     router.push("/admin/users");
     router.refresh();
   }
@@ -56,7 +59,7 @@ export default function NewAdminUserPage() {
           />
         </label>
 
-        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        {error && <Notice variant="error" message={error} onClose={() => setError(null)} />}
 
         <button
           type="submit"

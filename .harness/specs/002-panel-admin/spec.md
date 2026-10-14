@@ -2,7 +2,7 @@
 id: SPEC-002
 tipo: spec
 feature: 002-panel-admin
-estado: implemented
+estado: in-review
 # --- anclaje (fusionado; ver method.md §9) ---
 anchor_commit: c95fdaf49681673a68a4a7d696583f6082ac2e4f
 anchor_mode: advisory
@@ -19,6 +19,8 @@ covers:
   - apps/web/lib/services/uploads-root.ts
   - apps/web/lib/db/admin-users.repository.ts
   - apps/web/lib/http/**
+  - apps/web/lib/admin/**
+  - apps/web/app/uploads/**
   - apps/web/prisma/schema.prisma
   - apps/web/prisma/seed.ts
   - apps/web/prisma/migrations/20260920200740_admin_users/**
@@ -32,13 +34,20 @@ covers:
 aprobaciones:
   fase_1: { por: "Carlos", fecha: 2026-09-20 }
   fase_2: { por: "Carlos", fecha: 2026-09-20 }
-actualizado: 2026-09-20
+  enmienda_2026-10-14_fase_2: { por: "Carlos", fecha: 2026-10-14 }
+  enmienda_2026-10-14_fase_1: { por: "Carlos", fecha: 2026-10-14 }
+actualizado: 2026-10-14
 ---
 
 # SPEC-002 · Panel de administración (auth + CRUD de contenido)
 
 > Producida en Fase 1 por elicitación interactiva con el usuario (`method.md §3`).
 > Depende de ADR-003 (enmienda Constitución Art. 5: N administradores, mismo rol).
+>
+> **Enmienda 2026-10-14** (bug reportado en producción): la subida de imágenes fallaba
+> en silencio (volumen `danme-uploads` sin permiso de escritura para el proceso +
+> formulario que ignoraba la respuesta). Añade RF-121..RF-124 y precisa RNF-101.
+> Regla del usuario: *"si nunca indicas nada, no sabemos qué pasó"*.
 
 ## 1. Contexto del dominio
 
@@ -171,6 +180,25 @@ poblarse vía subida de archivo (antes solo por seed).
 - **RF-120** — SI la nueva contraseña (creación de usuario o cambio propio) tiene
   menos de 8 caracteres ENTONCES el sistema DEBE rechazarla.
 
+**Retroalimentación de escritura** *(enmienda 2026-10-14)*
+- **RF-121** — CUANDO termine cualquier operación de escritura del panel (crear o
+  editar producto, activar/desactivar producto, subir o eliminar imagen de producto,
+  guardar `SiteSettings`, subir o eliminar logo, crear usuario, activar/desactivar
+  usuario, cambiar contraseña) el sistema DEBE mostrar un mensaje visible de éxito
+  o de error que diga qué se intentó y qué pasó. Ninguna operación de escritura
+  puede terminar sin mensaje.
+- **RF-122** — SI una operación de escritura falla (respuesta no-2xx o error de
+  red) ENTONCES el mensaje DEBE ser de error e incluir el motivo devuelto por el
+  servidor (`detail` RFC 9457) o, si no hay, un motivo genérico ("no se pudo
+  conectar con el servidor").
+- **RF-123** — CUANDO se crea o edita un producto con éxito, el sistema DEBE volver
+  a la lista de productos mostrando arriba un aviso que permanece visible hasta que
+  el usuario lo cierra ("Producto creado" / "Producto actualizado"). SI el registro
+  se guardó pero la imagen falló ENTONCES el aviso DEBE informar ambos resultados
+  por separado ("Producto guardado, pero la imagen no se pudo subir: ‹motivo›").
+- **RF-124** — CUANDO una imagen o logo se sube con éxito, DEBE quedar accesible en
+  su URL de inmediato, sin reiniciar el servicio.
+
 ## 6. Registro de decisiones y descartes
 
 | Decisión | Justificación | Alternativa descartada | ADR |
@@ -181,13 +209,16 @@ poblarse vía subida de archivo (antes solo por seed).
 | Límite de intentos de login (5 intentos / 15 min) | Protección básica anti fuerza-bruta, propuesta por el agente y aceptada | Sin límite | — |
 | **Resguardo anti-bloqueo del último admin — RECHAZADO** | El usuario prefiere no añadir esa restricción; acepta el riesgo de auto-bloqueo mutuo, recuperable manualmente vía Postgres | Bloquear desactivación del último admin activo | — |
 | Sin recuperación de contraseña por email | Evita integración externa nueva (envío de email) no autorizada en esta fase | Flujo "olvidé mi contraseña" con email | — |
+| Mensaje de éxito/error obligatorio en toda escritura del panel (RF-121) — alcance: todo el panel, no solo productos | Regla del usuario 2026-10-14: sin mensaje no se sabe si algo se guardó | Solo productos y settings | — |
+| Tras guardar producto: volver a la lista con aviso persistente (RF-123) | Elegido por el usuario | Quedarse en el formulario con el aviso | — |
 | Sesión: cookie firmada httpOnly *stateless* (sin tabla `Session` en DB) | Menos superficie (Art. 12 anti-hipersistema); revocación se resuelve con `AdminUser.active` (RF-118), no con una tabla de sesiones a limpiar | Tabla `Session` en Postgres con revocación por fila | — |
 
 ## 7. Requisitos no funcionales (RNF)
 
 - **RNF-101** — Los archivos subidos se sirven desde un volumen Docker persistente
   (sobreviven a rebuilds de la imagen) — impacta `docker-compose.yml` (Feature 002
-  `plan.md`, no SPEC-001).
+  `plan.md`, no SPEC-001). El proceso de la app (usuario no-root del contenedor)
+  DEBE tener permiso de escritura sobre ese volumen *(precisión 2026-10-14)*.
 - **RNF-102** — Las contraseñas nunca se registran en logs ni se devuelven en
   ninguna respuesta de API (ni siquiera el hash).
 

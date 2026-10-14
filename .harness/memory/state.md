@@ -24,6 +24,17 @@ actualizado: 2026-09-20
   (`docker ps`, `docker network ls`, logs) el estado real de **ambos** lados, no
   asumir a partir del último mensaje leído.
 
+### [2026-10-14] Toda acción del panel debe decir qué pasó
+- **Qué pasó:** la subida de imagen de producto fallaba (EACCES en el volumen) y el
+  formulario ignoraba la respuesta — el usuario no veía ni éxito ni error. Mismo
+  patrón que ya se corrigió en el cambio de password (2026-09-23).
+- **Corrección:** cada carga de imagen y cada creación/actualización de registro
+  DEBE mostrar un mensaje de éxito o de error. "Si nunca indicas nada, no sabemos
+  qué pasó."
+- **Cómo aplicar:** ningún `fetch` de escritura en el panel puede ignorar su
+  respuesta; todo flujo de escritura termina en un mensaje visible (éxito o error
+  con el motivo). Revisarlo en cada review de UI del admin.
+
 ## Estado del backlog
 
 - Génesis: **hecha** (ADR-001 perfil de arquitectura, ADR-002 especialista UX/UI).

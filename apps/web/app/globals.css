@@ -5,12 +5,12 @@
   --foreground: #171717;
 
   /* Paleta de marca DanMe — SPEC-001 §5b (extraída del material de marca real)
-     Convertida a OKLCH para percepción uniforme (impeccable spec) */
-  --color-verde-danme: oklch(0.50 0.10 142°);
-  --color-verde-oscuro: oklch(0.28 0.08 145°);
-  --color-ambar: oklch(0.78 0.18 65°);
-  --color-naranja-quemado: oklch(0.54 0.18 31°);
-  --color-crema: oklch(0.82 0.08 72°);
+     Convertida a RGB para máxima compatibilidad de navegadores */
+  --color-verde-danme: rgb(65, 110, 81);
+  --color-verde-oscuro: rgb(18, 51, 34);
+  --color-ambar: rgb(254, 189, 89);
+  --color-naranja-quemado: rgb(223, 108, 43);
+  --color-crema: rgb(227, 195, 146);
 }
 
 @theme inline {

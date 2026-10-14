@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { mutate } from "@/lib/admin/mutate";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -28,16 +29,16 @@ export default function AccountPage() {
     }
 
     setSaving(true);
-    const res = await fetch("/api/admin/account/password", {
+    const res = await mutate("/api/admin/account/password", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPassword, newPassword }),
     });
     setSaving(false);
 
+    // RF-121, RF-122
     if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setError(body?.detail ?? "No se pudo cambiar la contraseña");
+      setError(`No se pudo cambiar la contraseña: ${res.error}`);
       return;
     }
 
