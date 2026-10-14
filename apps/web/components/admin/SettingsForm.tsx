@@ -61,71 +61,82 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex max-w-lg flex-col gap-4">
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Marca
-        <input className="rounded border px-3 py-2" value={brandName} onChange={(e) => setBrandName(e.target.value)} />
+    <form onSubmit={handleSubmit} className="max-w-lg space-y-4 rounded border border-verde-danme/20 bg-white p-6 shadow-sm">
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Marca</span>
+        <input
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
+          value={brandName}
+          onChange={(e) => setBrandName(e.target.value)}
+        />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Tagline
-        <input className="rounded border px-3 py-2" value={tagline} onChange={(e) => setTagline(e.target.value)} />
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Tagline</span>
+        <input
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
+          value={tagline}
+          onChange={(e) => setTagline(e.target.value)}
+        />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Sobre {brandName || "el negocio"} (sección de la landing)
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Sobre {brandName || "el negocio"} (sección de la landing)</span>
         <textarea
           rows={4}
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={aboutText}
           onChange={(e) => setAboutText(e.target.value)}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        WhatsApp
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">WhatsApp</span>
         <input
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={whatsappNumber}
           onChange={(e) => setWhatsappNumber(e.target.value)}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Instagram
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Instagram</span>
         <input
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={instagramUrl}
           onChange={(e) => setInstagramUrl(e.target.value)}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-verde-oscuro">
-        Facebook
+      <label className="flex flex-col gap-2">
+        <span className="font-medium text-verde-oscuro">Facebook</span>
         <input
-          className="rounded border px-3 py-2"
+          className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
           value={facebookUrl}
           onChange={(e) => setFacebookUrl(e.target.value)}
         />
       </label>
-      <ImageUploadField
-        label="Logo"
-        currentUrl={settings.logoUrl}
-        onFileSelected={setLogoFile}
-        onRemoveCurrent={async () => {
-          const removed = await mutate("/api/admin/settings/logo", { method: "DELETE" });
-          setNotice(
-            removed.ok
-              ? { variant: "success", message: "Logo eliminado" }
-              : { variant: "error", message: `No se pudo quitar el logo: ${removed.error}` },
-          );
-          if (removed.ok) router.refresh();
-        }}
-      />
+
+      <div className="border-t border-verde-danme/10 pt-4">
+        <ImageUploadField
+          label="Logo"
+          currentUrl={settings.logoUrl}
+          onFileSelected={setLogoFile}
+          onRemoveCurrent={async () => {
+            const removed = await mutate("/api/admin/settings/logo", { method: "DELETE" });
+            setNotice(
+              removed.ok
+                ? { variant: "success", message: "✅ Logo eliminado" }
+                : { variant: "error", message: `No se pudo quitar el logo: ${removed.error}` },
+            );
+            if (removed.ok) router.refresh();
+          }}
+        />
+      </div>
 
       {notice && <Notice variant={notice.variant} message={notice.message} onClose={() => setNotice(null)} />}
 
       <button
         type="submit"
         disabled={saving}
-        className="rounded bg-verde-danme py-2 font-semibold text-white disabled:opacity-60"
+        className="w-full rounded bg-verde-danme py-2 font-semibold text-white transition-all duration-200 hover:bg-verde-danme/90 hover:shadow-md disabled:opacity-60"
       >
-        {saving ? "Guardando…" : "Guardar"}
+        {saving ? "Guardando…" : "Guardar cambios"}
       </button>
     </form>
   );
