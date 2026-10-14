@@ -2,10 +2,11 @@
 id: PLAN-002
 tipo: plan
 feature: 002-panel-admin
-estado: implemented
+estado: in-review
 aprobaciones:
   fase_2: { por: "Carlos", fecha: 2026-09-20 }
   enmienda_2026-10-14_fase_2: { por: "Carlos", fecha: 2026-10-14 }
+  enmienda_2026-10-14b_fase_2: { por: "Carlos", fecha: 2026-10-14 }
 actualizado: 2026-10-14
 ---
 
@@ -257,3 +258,64 @@ líneas) bastan para 2 listas.
 |---|---|---|---|
 | Arquitectura | `docs/ARCHITECTURE.md` | `/uploads/*` servido por route handler además del estático; `lib/admin/` (mutate, flash) y regla "toda escritura muestra aviso" | `[doc]` T-075 |
 | Deploy / infra | `docs/DEPLOYMENT.md` | Dueño del volumen `danme-uploads` (uid 1001) y `chown` único para volúmenes existentes | `[doc]` T-076 |
+
+## 10. Enmienda 2026-10-14 (b) — eliminar producto y pantalla siempre al día
+
+Cubre RF-125..RF-128 (SPEC-002, aprobada Fase 1 `enmienda_2026-10-14b_fase_1`).
+
+### Implementación de RF-126 (borrado físico)
+- `lib/services/products-admin.service.ts` → `deleteProduct(id)`: lee el producto
+  (`null` → devuelve `null`), `prisma.product.delete`, y **después** `deleteUpload(imageUrl)`
+  (el archivo se borra solo si la fila ya se borró; si el `rm` fallara queda un
+  archivo huérfano, nunca una fila apuntando a nada). `Product` no tiene relaciones.
+- `app/api/admin/products/[id]/route.ts` → `DELETE`: 204 sin cuerpo; inexistente →
+  404 RFC 9457 "Producto no encontrado". Protegido por `proxy.ts` como el resto de
+  `/api/admin/**` (sin sesión → 401).
+
+### Implementación de RF-125 / RF-127 (diálogo + aviso)
+- `components/admin/DeleteProductButton.tsx` (cliente; props `productId`,
+  `productName`): botón "Eliminar" (variante `danger`) que abre un modal propio
+  (`role="dialog"`, `aria-modal`, `aria-labelledby`) con el texto de RF-125 y botones
+  "Cancelar" / "Eliminar". Escape, clic en el fondo o "Cancelar" cierran sin
+  petición. Al confirmar: `mutate(DELETE)` → `setFlash` (éxito «Producto «X»
+  eliminado» / error «No se pudo eliminar «X»: motivo») → `router.refresh()` solo si
+  `ok`. Mientras borra, el botón muestra "Eliminando…" y queda deshabilitado (sin
+  doble envío).
+- `app/admin/(protected)/products/page.tsx`: el botón va en la celda de acciones de
+  cada fila, junto a Editar y Activar/Desactivar.
+- Sin dependencias nuevas (nada de librerías de modal).
+
+### Implementación de RF-128 (pantalla al día)
+- Diagnóstico (2026-10-14, build de producción local + Playwright contra
+  `danme_test`): crear, editar, activar/desactivar, quitar imagen, volver a editar,
+  "atrás" del navegador y la landing **ya reflejan el cambio sin recargar**. Las
+  páginas `(protected)` son `force-dynamic` y el Client Cache de Next 16 no guarda
+  páginas dinámicas (`staleTimes.dynamic` = 0). Cloudflare responde
+  `cf-cache-status: DYNAMIC`. El síntoma reportado coincide con la versión anterior
+  en producción (imagen invisible hasta reiniciar — RF-124, desplegado 18:19).
+- Por eso RF-128 se cumple con el patrón ya existente (toda escritura exitosa →
+  `router.refresh()` o navegación a una página dinámica). Se fija con pruebas: cada
+  componente de escritura de productos verifica `refresh` en éxito, y un script e2e
+  (Playwright) recorre los 6 flujos + eliminar. **Si el usuario reporta un caso
+  concreto que siga fallando, se reabre con esos pasos.**
+
+### Pruebas (por zona)
+| Zona | Prueba | Cubre |
+|---|---|---|
+| servicio+API (db) | `tests/db/api-product-delete.test.ts`: DELETE 204 borra fila y archivo; 404 si no existe; sin sesión 401; error inesperado → 500 (no 404); `rm` falla tras borrar la fila → 204 + archivo huérfano registrado | RF-126 |
+| UI | `tests/components/DeleteProductButton.test.tsx`: abre diálogo con el nombre; Cancelar / Escape / fondo → sin fetch; confirmar ok → flash éxito + refresh; error → flash con motivo, sin refresh; deshabilitado mientras borra | RF-125, RF-127, RF-128 |
+| UI | `ProductForm.feedback` / `AdminWriteFeedback`: aserción explícita de navegación/`refresh` en cada éxito | RF-128 |
+| e2e manual | `apps/web/e2e/delete-product.mjs` (Playwright) contra build local + `danme_test`; salida en `.harness/memory/evidence/2026-10-14-eliminar-producto.md` | RF-125..RF-128 |
+
+### Secuenciación (tests antes que código)
+1. Tests db de DELETE (rojo) → `deleteProduct` + handler `DELETE`.
+2. Test de `DeleteProductButton` (rojo) → componente → montarlo en la lista.
+3. Aserciones de `refresh` (RF-128) en los tests existentes.
+4. e2e Playwright; docs.
+
+### Impacto en documentación
+| Doc | Cambio |
+|---|---|
+| `docs/CONTENT-MODEL.md` | `available`: quitar "no hay borrado físico"; eliminar = `DELETE` definitivo (RF-126) |
+| `docs/ARCHITECTURE.md` | `DELETE /api/admin/products/[id]` en el mapa de API |
+

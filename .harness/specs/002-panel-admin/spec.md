@@ -2,7 +2,7 @@
 id: SPEC-002
 tipo: spec
 feature: 002-panel-admin
-estado: implemented
+estado: in-review
 # --- anclaje (fusionado; ver method.md §9) ---
 anchor_commit: 0fb16f8b71ad1b1edf5ad15b26d358e7f28586c2
 anchor_mode: advisory
@@ -35,7 +35,9 @@ aprobaciones:
   fase_1: { por: "Carlos", fecha: 2026-09-20 }
   fase_2: { por: "Carlos", fecha: 2026-09-20 }
   enmienda_2026-10-14_fase_2: { por: "Carlos", fecha: 2026-10-14 }
+  enmienda_2026-10-14b_fase_2: { por: "Carlos", fecha: 2026-10-14 }
   enmienda_2026-10-14_fase_1: { por: "Carlos", fecha: 2026-10-14 }
+  enmienda_2026-10-14b_fase_1: { por: "Carlos", fecha: 2026-10-14 }
 actualizado: 2026-10-14
 ---
 
@@ -48,6 +50,12 @@ actualizado: 2026-10-14
 > en silencio (volumen `danme-uploads` sin permiso de escritura para el proceso +
 > formulario que ignoraba la respuesta). Añade RF-121..RF-124 y precisa RNF-101.
 > Regla del usuario: *"si nunca indicas nada, no sabemos qué pasó"*.
+>
+> **Enmienda 2026-10-14 (b)** (petición del usuario): eliminar productos de verdad,
+> no solo desactivarlos, siempre con confirmación. Revierte el descarte de "borrado
+> físico" de §6. Añade RF-125..RF-127. Desactivar (RF-108) se mantiene. Añade además
+> RF-128: todo cambio a productos se refleja en pantalla sin recargar a mano (el
+> usuario tenía que pulsar F5 para ver sus cambios).
 
 ## 1. Contexto del dominio
 
@@ -65,9 +73,9 @@ a disco local (volumen Docker), sin servicio de almacenamiento externo.
 
 ### En alcance
 - **Login/logout** — formulario email+password, sesión por cookie firmada httpOnly.
-- **Gestión de productos** — crear, editar, desactivar (`available=false`, ya
-  existe el campo — no hay borrado físico, confirmado por el usuario), y activar de
-  nuevo. Subida y eliminación de imagen de producto (archivo, disco local).
+- **Gestión de productos** — crear, editar, desactivar (`available=false`) y
+  activar de nuevo, y eliminar definitivamente con confirmación *(enmienda
+  2026-10-14 b; antes descartado)*. Subida y eliminación de imagen de producto (archivo, disco local).
 - **Edición de `SiteSettings`** — marca, tagline, WhatsApp, Instagram, Facebook,
   logo (con subida de imagen igual que productos).
 - **Gestión de usuarios admin** — listar, crear cuenta nueva (email+password),
@@ -85,8 +93,12 @@ a disco local (volumen Docker), sin servicio de almacenamiento externo.
   propuesto y **rechazado explícitamente por el usuario**. Riesgo aceptado: es
   posible que los 2 administradores se desactiven mutuamente y pierdan acceso; la
   recuperación en ese caso es manual (acceso directo a Postgres). *(§6.)*
-- **Borrado físico de productos** — "eliminar" en la UI es desactivar
-  (`available=false`), no `DELETE` de la fila.
+- ~~**Borrado físico de productos**~~ — pasa a en alcance (enmienda 2026-10-14 b,
+  RF-125..RF-127).
+- **Papelera / deshacer un borrado** — eliminar es definitivo; para ocultar sin
+  perder datos existe desactivar.
+- **Actualización en vivo de pestañas ya abiertas** (otra pestaña con la landing o
+  el panel de otro admin) — se ve en su siguiente carga; sin websockets ni polling.
 - **Recuperación de contraseña por email** ("olvidé mi contraseña") — no hay envío
   de email en esta fase (Art. 5, requeriría integración externa nueva). Si un admin
   pierde su contraseña, otro admin no puede resetearla desde el panel en esta
@@ -199,12 +211,33 @@ poblarse vía subida de archivo (antes solo por seed).
 - **RF-124** — CUANDO una imagen o logo se sube con éxito, DEBE quedar accesible en
   su URL de inmediato, sin reiniciar el servicio.
 
+**Eliminar producto** *(enmienda 2026-10-14 b)*
+- **RF-125** — CUANDO el admin pulsa "Eliminar" en una fila de la lista de
+  productos, el sistema DEBE abrir un diálogo propio del panel que nombre el
+  producto ("¿Eliminar definitivamente «‹nombre›»? Esta acción no se puede
+  deshacer.") con "Cancelar" y "Eliminar" (botón destructivo). Cancelar (botón,
+  Escape o clic fuera) NO DEBE enviar ninguna petición.
+- **RF-126** — CUANDO el admin confirma, el sistema DEBE borrar la fila del producto
+  y su archivo de imagen del disco (si tiene), y el producto DEBE dejar de aparecer
+  en la lista y en la landing. SI el producto ya no existe ENTONCES DEBE responder
+  404 RFC 9457 sin borrar nada más.
+- **RF-127** — Tras confirmar, la lista DEBE mostrar un aviso de éxito ("Producto
+  «‹nombre›» eliminado") o de error con el motivo ("No se pudo eliminar
+  «‹nombre›»: ‹motivo›") — aplica RF-121/RF-122.
+- **RF-128** — CUANDO una escritura sobre productos termina con éxito (crear,
+  editar, activar/desactivar, subir o quitar imagen, eliminar), la pantalla del
+  panel que el admin ve a continuación (la lista o el formulario) DEBE mostrar ya el
+  estado nuevo — nombre, precio, disponibilidad, imagen, fila eliminada — sin que el
+  admin recargue la página a mano. La landing pública DEBE mostrar el cambio en la
+  siguiente carga (ya es dinámica).
+
 ## 6. Registro de decisiones y descartes
 
 | Decisión | Justificación | Alternativa descartada | ADR |
 |---|---|---|---|
 | N administradores, mismo rol, sin RBAC | Caso real: 2 personas (Carlos, Daniel) necesitan editar por igual | RBAC con roles diferenciados | ADR-003 |
-| "Eliminar" producto = desactivar (`available=false`) | Nunca se pierde información ni se rompen referencias por accidente | Borrado físico (`DELETE`) | — |
+| ~~"Eliminar" producto = desactivar (`available=false`)~~ — **revertido 2026-10-14 b** | El usuario necesita quitar registros de verdad; `Product` no tiene relaciones, así que borrar no rompe referencias | — | — |
+| Eliminar producto: borrado físico con diálogo de confirmación que nombra el producto, desde la fila de la lista (RF-125) | Elegido por el usuario; desactivar sigue disponible para ocultar sin perder datos | Teclear el nombre para confirmar; `confirm()` nativo; botón solo en la edición | — |
 | Imágenes: subida de archivo a disco local | Self-host, sin servicios externos de almacenamiento (Art. 5) | Solo pegar URL externa | — |
 | Límite de intentos de login (5 intentos / 15 min) | Protección básica anti fuerza-bruta, propuesta por el agente y aceptada | Sin límite | — |
 | **Resguardo anti-bloqueo del último admin — RECHAZADO** | El usuario prefiere no añadir esa restricción; acepta el riesgo de auto-bloqueo mutuo, recuperable manualmente vía Postgres | Bloquear desactivación del último admin activo | — |

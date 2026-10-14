@@ -16,7 +16,7 @@ orientada a negocio de ese schema.
 | `priceCents` | int | admin | Precio en centavos MXN |
 | `presentation` | string | admin | p. ej. "190g" |
 | `imageUrl` | string? | admin (subida de archivo) | `null` → la UI muestra placeholder ("Imagen pendiente") |
-| `available` | boolean | admin (toggle) | `false` → no aparece en el catálogo público. "Eliminar" en la UI = esto, no hay borrado físico |
+| `available` | boolean | admin (toggle) | `false` → no aparece en el catálogo público (reversible). "Eliminar" en la UI es otra cosa: borrado físico definitivo de la fila y su imagen, con confirmación (SPEC-002 RF-125, RF-126) |
 | `nomExcesoCalorias` / `nomExcesoSodio` | boolean | admin | Sellos de advertencia NOM-051, se muestran en la ficha |
 
 ## `SiteSettings` — configuración global (singleton, fila `id: "default"`)

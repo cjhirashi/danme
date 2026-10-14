@@ -1,6 +1,7 @@
 import { listAllProducts } from "@/lib/services/products-admin.service";
 import { formatPrice } from "@/lib/services/content.service";
 import ProductAvailabilityToggle from "@/components/admin/ProductAvailabilityToggle";
+import DeleteProductButton from "@/components/admin/DeleteProductButton";
 import FlashNotice from "@/components/admin/FlashNotice";
 import AdminTable from "@/components/admin/AdminTable";
 import AdminButton from "@/components/admin/AdminButton";
@@ -22,6 +23,7 @@ export default async function AdminProductsPage() {
         Editar
       </AdminButton>
       <ProductAvailabilityToggle productId={product.id} productName={product.name} available={product.available} />
+      <DeleteProductButton productId={product.id} productName={product.name} />
     </div>
   ));
 

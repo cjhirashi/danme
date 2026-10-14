@@ -17,6 +17,8 @@ app/                    → rutas Next.js (Server Components)
   admin/login/              login (fuera del layout protegido)
   admin/(protected)/        productos, settings, usuarios, cuenta — comparten layout con nav
   api/admin/**               rutas API internas (auth, productos, settings, usuarios, cuenta)
+                             productos: POST /products, PATCH y DELETE /products/[id]
+                             (DELETE = borrado definitivo de fila + imagen, 204/404 — SPEC-002 RF-126)
   uploads/[...path]/         sirve imágenes subidas en runtime (pública — ver abajo)
 proxy.ts                → protege /admin/** y /api/admin/** (SPEC-002)
 components/landing/     → UI pública (sin lógica de negocio)
@@ -57,8 +59,11 @@ Regla: **toda operación de escritura termina en un aviso visible** (`Notice`) d
 éxito, error con motivo, o éxito parcial (p. ej. "Producto guardado, pero la imagen
 no se pudo subir: ‹motivo›"). Los `fetch` de escritura pasan por `lib/admin/mutate.ts`;
 cuando la acción navega (guardar producto, crear cuenta) o refresca una lista
-(toggles), el aviso viaja con `lib/admin/flash.ts` y lo pinta `FlashNotice` en la
-lista hasta que el usuario lo cierra.
+(toggles, eliminar), el aviso viaja con `lib/admin/flash.ts` y lo pinta `FlashNotice` en la
+lista hasta que el usuario lo cierra. Tras una escritura exitosa el cliente llama
+`router.refresh()` (y las páginas del panel son dinámicas), así la siguiente pantalla
+ya muestra el estado nuevo sin recargar a mano (RF-128). Eliminar un producto pide
+confirmación en un diálogo que nombra el producto (RF-125).
 
 ## Auth del panel admin (SPEC-002, ADR-003)
 

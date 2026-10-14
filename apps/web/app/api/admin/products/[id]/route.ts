@@ -1,4 +1,4 @@
-import { updateProduct } from "@/lib/services/products-admin.service";
+import { deleteProduct, updateProduct } from "@/lib/services/products-admin.service";
 import { problemResponse } from "@/lib/http/problem-details";
 
 // RF-107, RF-108
@@ -24,4 +24,23 @@ export async function PATCH(
   } catch {
     return problemResponse(404, "Producto no encontrado", `No existe un producto con id ${id}`);
   }
+}
+
+// RF-126
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<Response> {
+  const { id } = await params;
+  let deleted;
+  try {
+    deleted = await deleteProduct(id);
+  } catch (error) {
+    console.error(`DELETE producto ${id} falló`, error);
+    return problemResponse(500, "No se pudo eliminar el producto", "Error interno del servidor");
+  }
+  if (!deleted) {
+    return problemResponse(404, "Producto no encontrado", `No existe un producto con id ${id}`);
+  }
+  return new Response(null, { status: 204 });
 }

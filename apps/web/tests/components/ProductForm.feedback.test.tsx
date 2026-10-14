@@ -58,6 +58,7 @@ describe("ProductForm — avisos tras guardar", () => {
     submit();
     await waitFor(() => expect(push).toHaveBeenCalledWith("/admin/products"));
     expect(consumeFlash()).toEqual({ variant: "success", message: "Producto creado" });
+    expect(refresh).toHaveBeenCalled(); // RF-128
   });
 
   it("editar con éxito → 'Producto actualizado'", async () => {
@@ -66,6 +67,7 @@ describe("ProductForm — avisos tras guardar", () => {
     submit();
     await waitFor(() => expect(push).toHaveBeenCalledWith("/admin/products"));
     expect(consumeFlash()).toEqual({ variant: "success", message: "Producto actualizado" });
+    expect(refresh).toHaveBeenCalled(); // RF-128
   });
 
   it("registro + imagen con éxito → lo dice explícitamente", async () => {
@@ -92,6 +94,7 @@ describe("ProductForm — avisos tras guardar", () => {
       variant: "warning",
       message: "Producto guardado, pero la imagen no se pudo subir: Error del servidor (500)",
     });
+    expect(refresh).toHaveBeenCalled(); // RF-128 — el registro sí cambió
   });
 
   // RF-122

@@ -127,6 +127,17 @@ actualizado: 2026-10-14
 - [x] T-077 — Tests (rojo): `AccountPage` con error de red → alerta "No se pudo conectar…" y botón liberado; `ProductForm` con 2xx sin cuerpo + imagen (alta → aviso; edición → sube al id conocido); `readUpload` con symlink, `%2e%2e` y byte nulo; `deleteUpload` en carpeta hermana `uploads-evil` (cubre RF-121, RF-122, RF-124) [zona: ui+servicio] — hallazgos del revisor
 - [x] T-078 — `account/page.tsx` vía `mutate`; `ProductForm` sin `saved.data.id` crudo; `readUpload` con `realpath`; `deleteUpload` con `path.sep` (cubre RF-121, RF-122, RF-124) [zona: ui+servicio]
 
+### Enmienda 2026-10-14 (b) — eliminar producto + refresco (plan §10)
+- [x] T-079 — Tests DB (rojo): `DELETE /api/admin/products/[id]` → 204 y borra fila + archivo; sin imagen → 204; inexistente → 404 RFC 9457 sin tocar otros; sin sesión el proxy → 401 (cubre RF-126) [zona: test]
+- [x] T-080 — `deleteProduct` en `products-admin.service.ts` + handler `DELETE` (cubre RF-126) [zona: servicio + frontera entrada]
+- [x] T-081 — Test componente (rojo): `DeleteProductButton` — diálogo con nombre, Cancelar/Escape/fondo sin petición, éxito → flash + refresh, error/red → flash con motivo sin refresh, "Eliminando…" sin doble envío (cubre RF-125, RF-126, RF-127, RF-128) [zona: test]
+- [x] T-082 — Implementar `components/admin/DeleteProductButton.tsx` y montarlo en las acciones de cada fila de la lista (cubre RF-125, RF-126, RF-127) [zona: UI]
+- [x] T-083 — Aserciones de refresco tras crear/editar/éxito parcial en `ProductForm.feedback.test.tsx` (cubre RF-128) [zona: test]
+- [x] T-084 — e2e Playwright contra build local + `danme_test`: crear con imagen, cancelar/Escape/fondo sin DELETE, confirmar → desaparece de la lista y del landing, aviso, archivo borrado (cubre RF-125..RF-128) [zona: verificación] — script `apps/web/e2e/delete-product.mjs`, salida en `.harness/memory/evidence/2026-10-14-eliminar-producto.md`
+- [x] T-087 — Hallazgos del revisor (tests en rojo primero): error inesperado en DELETE → 500 RFC 9457 (no 404); `rm` falla tras borrar la fila → 204 + huérfano registrado; P2025 concurrente → 404; trampa de foco Tab/Shift+Tab en el diálogo; script e2e versionado en `apps/web/e2e/delete-product.mjs` y salida en `.harness/memory/evidence/2026-10-14-eliminar-producto.md` (cubre RF-125, RF-126, RF-128) [zona: servicio + frontera entrada + UI]
+- [x] T-085 — [doc] `docs/CONTENT-MODEL.md`: eliminar = borrado físico (cubre doc: content-model-borrado)
+- [x] T-086 — [doc] `docs/ARCHITECTURE.md`: `DELETE /api/admin/products/[id]`, refresco tras escribir (cubre doc: arch-borrado)
+
 ## Cobertura (el gate exige 100 %; `Estado` lo rellena el gate)
 | RF / doc | Tareas | Test(s) | Estado |
 |---|---|---|---|
@@ -155,6 +166,10 @@ actualizado: 2026-10-14
 | RF-122 | T-063, T-071, T-073, T-078 | T-062, T-070, T-072, T-077 | Pass |
 | RF-123 | T-065, T-067, T-071 | T-064, T-066, T-070 | Pass |
 | RF-124 | T-069, T-074, T-078 | T-068, T-077, verificación manual (T-074) | Pass |
+| RF-125 | T-082, T-087 | T-081, T-084, T-087 | Pass |
+| RF-126 | T-080, T-082, T-087 | T-079, T-081, T-084, T-087 | Pass |
+| RF-127 | T-082 | T-081, T-084 | Pass |
+| RF-128 | T-082 | T-081, T-083, T-084 | Pass |
 | RNF-102 | T-022, T-024, T-041, T-045 | revisión de código (sin campo password en respuestas) | Pass |
 | doc: content-model | T-058 | — | Pass |
 | doc: arch | T-059 | — | Pass |
@@ -162,6 +177,8 @@ actualizado: 2026-10-14
 | doc: readme | T-061 | — | Pass |
 | doc: arch-enmienda | T-075 | — | Pass |
 | doc: deploy-enmienda | T-076 | — | Pass |
+| doc: content-model-borrado | T-085 | — | Pass |
+| doc: arch-borrado | T-086 | — | Pass |
 
 > Esta tabla **es** la trazabilidad de la feature (no hay `traceability-matrix.md`).
 > Fila sin test, en `Fail` o `Pendiente` → el gate no abre.
