@@ -150,7 +150,7 @@ actualizado: 2026-10-14
 | RF-118 | T-013, T-029 | T-012, T-028 | Pass |
 | RF-119 | T-035, T-039 | T-034, T-038 (casos 404) | Pass |
 | RF-120 | T-017, T-045, T-053 | T-016, T-044 | Pass |
-| RNF-101 | T-054, T-074 | verificación manual (T-057, T-074) | Pendiente |
+| RNF-101 | T-054, T-074 | verificación manual (T-057, T-074; subida real en producción confirmada por el usuario 2026-10-14) | Pass |
 | RF-121 | T-063, T-067, T-071, T-073, T-078 | T-062, T-066, T-070, T-072, T-077 | Pass |
 | RF-122 | T-063, T-071, T-073, T-078 | T-062, T-070, T-072, T-077 | Pass |
 | RF-123 | T-065, T-067, T-071 | T-064, T-066, T-070 | Pass |

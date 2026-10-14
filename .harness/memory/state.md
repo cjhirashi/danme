@@ -65,8 +65,7 @@ actualizado: 2026-10-14
   (RF-121..RF-123) y subida de imágenes arreglada (RF-124, RNF-101). `implemented`,
   aprobada por el revisor. **En producción (2026-10-14 18:19):** `chown` del volumen
   `danme_danme-uploads` a 1001 + redeploy (`--force-recreate`; `up -d` solo no
-  recreó el contenedor). Falta que el usuario confirme una subida real para pasar
-  RNF-101 a Pass.
+  recreó el contenedor). El usuario confirmó una subida real → RNF-101 `Pass`.
 - Gate en rojo solo por `theme-tokens.test.ts`: el rediseño (otra sesión) dejó los
   tokens de `globals.css` en `rgb(...)` válido, pero el test espera hex. Lo resuelve
   quien lleve el rediseño, no la enmienda.
@@ -141,4 +140,3 @@ actualizado: 2026-10-14
 2. Avisar a Carlos y Daniel que cambien la password temporal (`admin1234`) desde
    `/admin/account` en cuanto tengan acceso.
 3. Sin Feature 003 planeada todavía.
-4. Que el usuario confirme una subida real en producción → RNF-101 a `Pass`.
