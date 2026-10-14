@@ -103,12 +103,14 @@ export default function ProductForm({ product }: { product?: Product }) {
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="font-medium text-verde-oscuro">Precio (centavos MXN)</span>
+        <span className="font-medium text-verde-oscuro">Precio (MXN)</span>
         <input
           type="number"
+          step="0.01"
+          min="0"
           className="rounded border border-verde-danme/20 px-3 py-2 focus:border-verde-danme focus:outline-none focus:ring-1 focus:ring-verde-danme"
-          value={priceCents}
-          onChange={(e) => setPriceCents(Number(e.target.value))}
+          value={(priceCents / 100).toFixed(2)}
+          onChange={(e) => setPriceCents(Math.round(Number(e.target.value) * 100))}
         />
       </label>
 
