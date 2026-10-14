@@ -8,6 +8,22 @@ subtipo: history
 > Append-only, orden cronológico inverso (lo más reciente arriba). Una entrada
 > Session-End por sesión, con el formato fijo de `method.md §10`.
 
+## [2026-10-14] SPEC-002 enmienda (b) — eliminar producto con confirmación + refresco — implemented
+- **Fase alcanzada:** implement (T-079..T-087; RF-125..RF-128 con test y Pass) + deploy a producción
+- **Rebotes del verificador:** 1. El DELETE enmascaraba cualquier excepción como 404; faltaba versionar el e2e; faltaba la trampa de foco. Corregido en T-087 con los tests en rojo primero.
+- **Directiva de Pausa:** no
+- **Drift / re-anchor:** no
+- **Anclas movidas:** SPEC-002 `anchor_commit` → `48f0eac5bed2c1519399e2a595cf7815c2bb664b`
+- **Gate:** rojo (20 ok · 0 warn · 1 error). El único fallo es `theme-tokens.test.ts`, del rediseño visual, fuera de alcance por decisión del usuario.
+- **Docs actualizadas:** `docs/ARCHITECTURE.md`, `docs/CONTENT-MODEL.md`
+- **Decisiones de diseño / límites de integración:**
+  - "Eliminar" en la UI pasa a ser borrado físico definitivo; "Desactivar" sigue siendo reversible.
+  - Se borra primero la fila y después el archivo. Si `rm` falla, queda un archivo huérfano registrado y la respuesta es 204.
+  - Diálogo propio con el nombre del producto; Escape, clic en el fondo y Cancelar no envían nada.
+  - RF-128 no se reprodujo en el build actual: se cubrió con aserciones de `refresh` y con e2e. La lentitud que se veía era probablemente la versión de producción anterior.
+  - Evidencia e2e en `.harness/memory/evidence/2026-10-14-eliminar-producto.md`.
+- **Próximo paso:** que el usuario confirme en producción eliminando un producto de prueba.
+
 ## [2026-10-14] SPEC-002 enmienda — avisos de escritura + subida de imágenes — implemented
 - **Fase alcanzada:** implement (T-062..T-078; RF-121..RF-124 con test y Pass)
 - **Rebotes del verificador:** 2 (1: `account/page.tsx` con fetch crudo, `saved.data.id`

@@ -4,7 +4,7 @@ tipo: spec
 feature: 002-panel-admin
 estado: in-review
 # --- anclaje (fusionado; ver method.md §9) ---
-anchor_commit: 0fb16f8b71ad1b1edf5ad15b26d358e7f28586c2
+anchor_commit: 48f0eac5bed2c1519399e2a595cf7815c2bb664b
 anchor_mode: advisory
 covers:
   - apps/web/app/admin/**

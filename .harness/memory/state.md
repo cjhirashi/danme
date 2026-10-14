@@ -66,6 +66,11 @@ actualizado: 2026-10-14
   aprobada por el revisor. **En producción (2026-10-14 18:19):** `chown` del volumen
   `danme_danme-uploads` a 1001 + redeploy (`--force-recreate`; `up -d` solo no
   recreó el contenedor). El usuario confirmó una subida real → RNF-101 `Pass`.
+- **Enmienda SPEC-002 (b) (2026-10-14):** botón "Eliminar" en cada fila de la lista de productos.
+  - Es borrado físico de la fila y su imagen, tras un diálogo de confirmación que nombra el producto.
+  - Hay aviso de éxito o error, y la lista se refresca sola (RF-125..RF-128).
+  - Estado `implemented`, aprobada por el revisor, desplegada en producción (commit `48f0eac`).
+  - Falta que el usuario la confirme en vivo.
 - Gate en rojo solo por `theme-tokens.test.ts`: el rediseño (otra sesión) dejó los
   tokens de `globals.css` en `rgb(...)` válido, pero el test espera hex. Lo resuelve
   quien lleve el rediseño, no la enmienda.
@@ -139,4 +144,5 @@ actualizado: 2026-10-14
    con las cuentas reales).
 2. Avisar a Carlos y Daniel que cambien la password temporal (`admin1234`) desde
    `/admin/account` en cuanto tengan acceso.
-3. Sin Feature 003 planeada todavía.
+3. Que el usuario confirme en producción "Eliminar" con un producto de prueba.
+4. Sin Feature 003 planeada todavía.
