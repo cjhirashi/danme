@@ -10,7 +10,7 @@
       "web": "danme.cjhirashi.com"
     },
     "estado": "validado",
-    "ultima_sync": "2026-10-14"
+    "ultima_sync": "2026-10-20"
   },
   "servicios": [
     {
@@ -21,7 +21,7 @@
       "sse": false,
       "healthcheck": "/",
       "headers_up": [
-        "Cache-Control no-cache, no-store, must-revalidate"
+        "Cache-Control \"no-cache, no-store, must-revalidate\""
       ],
       "rutas": [
         {
