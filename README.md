@@ -26,7 +26,7 @@ danme/
 
 ```bash
 cd apps/web
-cp .env.example .env          # rellena DATABASE_URL y SESSION_SECRET
+cp .env.example .env          # DATABASE_URL, SESSION_SECRET y ADMIN_EMAIL/ADMIN_PASSWORD (primer admin)
 npm install
 npm run dev                   # http://localhost:3000
 npm run db:seed               # datos iniciales
